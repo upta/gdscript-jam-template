@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dhmik0ywn4u2p"]
+
+[ext_resource type="Script" uid="uid://di2i0n0owhk43" path="res://app/state/resource_type/resource_type_state.gd" id="1_a022v"]
+
+[node name="Resources" type="Node"]
+script = ExtResource("1_a022v")
+example = Dictionary[String, int]({
+"one": 1,
+"two": 2
+})

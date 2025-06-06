@@ -1,0 +1,37 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Template"
+run/main_scene="uid://cdpvteme84tjq"
+config/features=PackedStringArray("4.4", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GUIDE="*res://addons/guide/guide.gd"
+State="*res://app/state/state.tscn"
+Service="*res://app/service/service.tscn"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="viewport"
+window/stretch/scale_mode="integer"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/SimpleFormatOnSave/plugin.cfg", "res://addons/guide/plugin.cfg")
+
+[gui]
+
+theme/custom="uid://b7dww2qqyokis"

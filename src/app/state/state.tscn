@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://db2uc64vkt0vj"]
+
+[ext_resource type="Script" uid="uid://dk887gae65vle" path="res://app/state/state.gd" id="1_3erup"]
+[ext_resource type="PackedScene" uid="uid://dhmik0ywn4u2p" path="res://app/state/resource_type/resource_type_state.tscn" id="2_ybf1e"]
+
+[node name="State" type="Node"]
+script = ExtResource("1_3erup")
+
+[node name="ResourceType" parent="." instance=ExtResource("2_ybf1e")]
+unique_name_in_owner = true
