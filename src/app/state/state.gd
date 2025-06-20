@@ -1,8 +1,5 @@
 extends Node
 
+@onready var Guide: GuideState = %Guide
 @onready var ResourceType: ResourceTypeState = %ResourceType
-var Screen := ScreenState.new()
-
-
-func _enter_tree() -> void:
-	add_child(Screen)
+@onready var Screen: ScreenState = %Screen

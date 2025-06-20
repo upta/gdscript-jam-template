@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="GUIDEMappingContext" load_steps=13 format=3 uid="uid://o8hj57tfhval"]
+
+[ext_resource type="Script" uid="uid://cpplm41b5bt6m" path="res://addons/guide/guide_action_mapping.gd" id="1_qqgh4"]
+[ext_resource type="Resource" uid="uid://cs882762k5uw" path="res://guide/game/actions/open_settings.tres" id="2_gh765"]
+[ext_resource type="Script" uid="uid://mtx1unc2aqn7" path="res://addons/guide/guide_input_mapping.gd" id="3_y2luf"]
+[ext_resource type="Script" uid="uid://cw71o87tvdx3q" path="res://addons/guide/inputs/guide_input_key.gd" id="4_anoqn"]
+[ext_resource type="Script" uid="uid://bl8rjl4oaldje" path="res://addons/guide/modifiers/guide_modifier.gd" id="5_1xor4"]
+[ext_resource type="Script" uid="uid://x74mnwgr08a7" path="res://addons/guide/triggers/guide_trigger.gd" id="6_p78rg"]
+[ext_resource type="Script" uid="uid://b52rqq28tuqpg" path="res://addons/guide/triggers/guide_trigger_pressed.gd" id="7_x5c5v"]
+[ext_resource type="Script" uid="uid://dsa1dnifd6w32" path="res://addons/guide/guide_mapping_context.gd" id="8_mbql7"]
+
+[sub_resource type="Resource" id="Resource_wqa0g"]
+script = ExtResource("4_anoqn")
+key = 4194305
+shift = false
+control = false
+alt = false
+meta = false
+allow_additional_modifiers = true
+
+[sub_resource type="Resource" id="Resource_xn2ao"]
+script = ExtResource("7_x5c5v")
+actuation_threshold = 0.5
+
+[sub_resource type="Resource" id="Resource_slf2d"]
+script = ExtResource("3_y2luf")
+override_action_settings = false
+is_remappable = false
+display_name = ""
+display_category = ""
+input = SubResource("Resource_wqa0g")
+modifiers = Array[ExtResource("5_1xor4")]([])
+triggers = Array[ExtResource("6_p78rg")]([SubResource("Resource_xn2ao")])
+
+[sub_resource type="Resource" id="Resource_s0mx6"]
+script = ExtResource("1_qqgh4")
+action = ExtResource("2_gh765")
+input_mappings = Array[ExtResource("3_y2luf")]([SubResource("Resource_slf2d")])
+
+[resource]
+script = ExtResource("8_mbql7")
+display_name = ""
+mappings = Array[ExtResource("1_qqgh4")]([SubResource("Resource_s0mx6")])
+metadata/_custom_type_script = "uid://dsa1dnifd6w32"

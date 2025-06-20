@@ -1,4 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://duu3mfhuppqwx"]
+[gd_scene load_steps=5 format=3 uid="uid://duu3mfhuppqwx"]
+
+[ext_resource type="Script" uid="uid://be0h8klrnmkqj" path="res://game/game.gd" id="1_l1rk1"]
+[ext_resource type="Resource" uid="uid://cs882762k5uw" path="res://guide/game/actions/open_settings.tres" id="2_vasa2"]
 
 [sub_resource type="Gradient" id="Gradient_mq7fr"]
 colors = PackedColorArray(0.403922, 0.305882, 0.243137, 1, 0.788235, 0.866667, 1, 1)
@@ -8,6 +11,8 @@ gradient = SubResource("Gradient_mq7fr")
 fill_to = Vector2(0, 1)
 
 [node name="Game" type="Node"]
+script = ExtResource("1_l1rk1")
+settings_action = ExtResource("2_vasa2")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bnh2natk7iyqv"]
+[gd_scene load_steps=6 format=3 uid="uid://bnh2natk7iyqv"]
 
 [ext_resource type="Script" uid="uid://bt4rafy8ql3te" path="res://main_menu/main_menu.gd" id="1_oa53l"]
 [ext_resource type="PackedScene" uid="uid://duu3mfhuppqwx" path="res://game/game.tscn" id="2_d3a7t"]
+[ext_resource type="Resource" uid="uid://ch1j1gokx2ime" path="res://guide/main_menu/actions/open_settings.tres" id="3_3shxk"]
 
 [sub_resource type="Gradient" id="Gradient_1h4yd"]
 offsets = PackedFloat32Array(0, 0.992337)
@@ -15,6 +16,7 @@ fill_to = Vector2(0.65812, 1)
 [node name="MainMenu" type="Node"]
 script = ExtResource("1_oa53l")
 game_scene = ExtResource("2_d3a7t")
+settings_action = ExtResource("3_3shxk")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

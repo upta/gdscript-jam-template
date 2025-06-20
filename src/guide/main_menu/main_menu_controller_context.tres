@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="GUIDEMappingContext" load_steps=13 format=3 uid="uid://clstb4p6yhug8"]
+
+[ext_resource type="Script" uid="uid://cpplm41b5bt6m" path="res://addons/guide/guide_action_mapping.gd" id="1_mq32i"]
+[ext_resource type="Resource" uid="uid://ch1j1gokx2ime" path="res://guide/main_menu/actions/open_settings.tres" id="2_ik7l7"]
+[ext_resource type="Script" uid="uid://dsa1dnifd6w32" path="res://addons/guide/guide_mapping_context.gd" id="2_ob6iw"]
+[ext_resource type="Script" uid="uid://mtx1unc2aqn7" path="res://addons/guide/guide_input_mapping.gd" id="3_b0c4e"]
+[ext_resource type="Script" uid="uid://rvttn472ix6v" path="res://addons/guide/inputs/guide_input_joy_button.gd" id="4_80uim"]
+[ext_resource type="Script" uid="uid://bl8rjl4oaldje" path="res://addons/guide/modifiers/guide_modifier.gd" id="5_jgy5v"]
+[ext_resource type="Script" uid="uid://x74mnwgr08a7" path="res://addons/guide/triggers/guide_trigger.gd" id="6_ie3ev"]
+[ext_resource type="Script" uid="uid://b52rqq28tuqpg" path="res://addons/guide/triggers/guide_trigger_pressed.gd" id="7_e16dx"]
+
+[sub_resource type="Resource" id="Resource_y61ld"]
+script = ExtResource("4_80uim")
+button = 4
+joy_index = -1
+
+[sub_resource type="Resource" id="Resource_r8tna"]
+script = ExtResource("7_e16dx")
+actuation_threshold = 0.5
+
+[sub_resource type="Resource" id="Resource_hr67j"]
+script = ExtResource("3_b0c4e")
+override_action_settings = false
+is_remappable = false
+display_name = ""
+display_category = ""
+input = SubResource("Resource_y61ld")
+modifiers = Array[ExtResource("5_jgy5v")]([])
+triggers = Array[ExtResource("6_ie3ev")]([SubResource("Resource_r8tna")])
+
+[sub_resource type="Resource" id="Resource_b1bhg"]
+script = ExtResource("1_mq32i")
+action = ExtResource("2_ik7l7")
+input_mappings = Array[ExtResource("3_b0c4e")]([SubResource("Resource_hr67j")])
+
+[resource]
+script = ExtResource("2_ob6iw")
+display_name = ""
+mappings = Array[ExtResource("1_mq32i")]([SubResource("Resource_b1bhg")])
+metadata/_custom_type_script = "uid://dsa1dnifd6w32"

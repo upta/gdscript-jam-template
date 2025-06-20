@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="GUIDEMappingContext" load_steps=13 format=3 uid="uid://ceg2sk4we5f0j"]
+
+[ext_resource type="Script" uid="uid://cpplm41b5bt6m" path="res://addons/guide/guide_action_mapping.gd" id="1_ys3uf"]
+[ext_resource type="Resource" uid="uid://dprqx1v88hut7" path="res://guide/global/actions/switch_to_controller.tres" id="2_02w5d"]
+[ext_resource type="Script" uid="uid://dsa1dnifd6w32" path="res://addons/guide/guide_mapping_context.gd" id="2_k1r2a"]
+[ext_resource type="Script" uid="uid://mtx1unc2aqn7" path="res://addons/guide/guide_input_mapping.gd" id="3_xds60"]
+[ext_resource type="Script" uid="uid://w3fbpe7r01n8" path="res://addons/guide/inputs/guide_input_any.gd" id="4_brmcm"]
+[ext_resource type="Script" uid="uid://bl8rjl4oaldje" path="res://addons/guide/modifiers/guide_modifier.gd" id="5_bcfb6"]
+[ext_resource type="Script" uid="uid://x74mnwgr08a7" path="res://addons/guide/triggers/guide_trigger.gd" id="6_0tgfq"]
+[ext_resource type="Script" uid="uid://b52rqq28tuqpg" path="res://addons/guide/triggers/guide_trigger_pressed.gd" id="7_se456"]
+
+[sub_resource type="Resource" id="Resource_yikbx"]
+script = ExtResource("4_brmcm")
+mouse_buttons = false
+mouse_movement = false
+minimum_mouse_movement_distance = 1.0
+joy_buttons = true
+joy_axes = true
+minimum_joy_axis_actuation_strength = 0.2
+keyboard = false
+touch = false
+mouse = false
+joy = true
+
+[sub_resource type="Resource" id="Resource_4gly1"]
+script = ExtResource("7_se456")
+actuation_threshold = 0.5
+
+[sub_resource type="Resource" id="Resource_n83hf"]
+script = ExtResource("3_xds60")
+override_action_settings = false
+is_remappable = false
+display_name = ""
+display_category = ""
+input = SubResource("Resource_yikbx")
+modifiers = Array[ExtResource("5_bcfb6")]([])
+triggers = Array[ExtResource("6_0tgfq")]([SubResource("Resource_4gly1")])
+
+[sub_resource type="Resource" id="Resource_w4enw"]
+script = ExtResource("1_ys3uf")
+action = ExtResource("2_02w5d")
+input_mappings = Array[ExtResource("3_xds60")]([SubResource("Resource_n83hf")])
+
+[resource]
+script = ExtResource("2_k1r2a")
+display_name = ""
+mappings = Array[ExtResource("1_ys3uf")]([SubResource("Resource_w4enw")])
+metadata/_custom_type_script = "uid://dewwme1ec6bfd"
