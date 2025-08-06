@@ -1,10 +1,13 @@
 extends Node
 
+@onready var guide_service: GuideService = Provider.inject(self, GuideService)
+
 @export var settings_action: GUIDEAction
 
 
 func _ready() -> void:
-	State.Guide.active_game_mode = "game"
+	guide_service.set_game_mode("game")
+
 	settings_action.triggered.connect(_on_settings_action_triggered)
 
 

@@ -2,13 +2,15 @@ extends Node
 
 var active_scene: Node
 
+@onready var screen_state: ScreenState = Provider.inject(self, ScreenState)
+
 @onready var container: Node = %Container
 @onready var animation_player: AnimationPlayer = %AnimationPlayer
 @onready var canvas_layer: CanvasLayer = $CanvasLayer
 
 
 func _ready() -> void:
-	State.Screen.active_path_changed.connect(_screen_changed)
+	screen_state.active_path_changed.connect(_screen_changed)
 
 
 func _screen_changed(_old: String, new: String):
