@@ -18,7 +18,7 @@ jobs:
       image_name: ${{ steps.build_image_name.outputs.image_name }}
     steps:
     - id: build_image_name
-      run: echo "::set-output name=image_name::barichello/godot-ci:${{ env.GODOT_VERSION }}"
+      run: echo "image_name=barichello/godot-ci:${{ env.GODOT_VERSION }}" >> "$GITHUB_OUTPUT"
 
   export-web:
     name: Web Export
@@ -39,7 +39,7 @@ jobs:
         run: godot -v --export "HTML5" ./build/web/index.html
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: web
           path: ./build/web/
