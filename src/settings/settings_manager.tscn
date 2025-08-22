@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://famshh57hgyy"]
+
+[ext_resource type="Script" uid="uid://b3n3rjkvyonam" path="res://settings/settings_manager.gd" id="1_yflpc"]
+[ext_resource type="PackedScene" uid="uid://nxwdylf3qpmw" path="res://settings/settings_menu.tscn" id="2_2acfi"]
+
+[node name="SettingsManager" type="Node"]
+script = ExtResource("1_yflpc")
+
+[node name="SettingsMenu" parent="." instance=ExtResource("2_2acfi")]

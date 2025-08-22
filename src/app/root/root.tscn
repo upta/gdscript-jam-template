@@ -1,12 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://cdpvteme84tjq"]
+[gd_scene load_steps=16 format=3 uid="uid://cdpvteme84tjq"]
 
-[ext_resource type="PackedScene" uid="uid://c7b0m701iax8f" path="res://app/screen_manager/screen_manager.tscn" id="1_h7bvq"]
-[ext_resource type="Script" uid="uid://ce5e5io5iwnaf" path="res://app/root/root.gd" id="1_rc0qa"]
-[ext_resource type="PackedScene" uid="uid://bnh2natk7iyqv" path="res://main_menu/main_menu.tscn" id="2_2mp4s"]
+[ext_resource type="Script" uid="uid://ce5e5io5iwnaf" path="res://app/root/root.gd" id="1_chpjv"]
 [ext_resource type="Resource" uid="uid://5otd6sgooll6" path="res://guide/global/global_controller_context.tres" id="2_pq42y"]
 [ext_resource type="Resource" uid="uid://ceg2sk4we5f0j" path="res://guide/global/global_kbm_context.tres" id="3_iuq4u"]
 [ext_resource type="Script" uid="uid://cxjqnfuajdq2w" path="res://app/service/guide/input_mode_context.gd" id="4_4jcem"]
-[ext_resource type="Script" uid="uid://dagcxm7jpnenl" path="res://app/root/entry.gd" id="4_s80r0"]
 [ext_resource type="Resource" uid="uid://clstb4p6yhug8" path="res://guide/main_menu/main_menu_controller_context.tres" id="5_jtda4"]
 [ext_resource type="Resource" uid="uid://boeyolteokfff" path="res://guide/main_menu/main_menu_kbm_context.tres" id="6_75srt"]
 [ext_resource type="Resource" uid="uid://pn4d7d8ppcyk" path="res://guide/game/game_controller_context.tres" id="7_sucq6"]
@@ -14,6 +11,7 @@
 [ext_resource type="Script" uid="uid://csmv3wflb6pux" path="res://app/service/guide/input_context.gd" id="9_2s53j"]
 [ext_resource type="Resource" uid="uid://dprqx1v88hut7" path="res://guide/global/actions/switch_to_controller.tres" id="10_ruhag"]
 [ext_resource type="Resource" uid="uid://bwkgtb0d1qkwn" path="res://guide/global/actions/switch_to_kbm.tres" id="11_raf84"]
+[ext_resource type="PackedScene" uid="uid://dcopeiqot6g8w" path="res://app/root/app.tscn" id="12_dtq57"]
 
 [sub_resource type="Resource" id="Resource_sitps"]
 script = ExtResource("4_4jcem")
@@ -39,11 +37,6 @@ switch_to_kbm_action = ExtResource("11_raf84")
 metadata/_custom_type_script = "uid://csmv3wflb6pux"
 
 [node name="Root" type="Node"]
-script = ExtResource("1_rc0qa")
+script = ExtResource("1_chpjv")
 input_context = SubResource("Resource_3yjva")
-
-[node name="ScreenManager" parent="." instance=ExtResource("1_h7bvq")]
-
-[node name="Entry" type="Node" parent="."]
-script = ExtResource("4_s80r0")
-main_menu_scene = ExtResource("2_2mp4s")
+app = ExtResource("12_dtq57")

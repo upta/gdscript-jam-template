@@ -1,42 +1,50 @@
 extends Node
 
 @export var input_context: InputContext
-
+@export var app: PackedScene
 
 func _enter_tree() -> void:
-	_build_screen()
-	_build_guide()
+	Provider.provide(self, input_context)
+
+	_build_config()
+	_build_state()
+	_build_services()
+	
+	_start_app()
 
 
-func _build_guide() -> void:
+func _add_dependency(container: Node, label: String, node: Variant) -> Variant:
+	node.name = label
+	container.add_child(node)
+
+	Provider.provide(self, node)
+	
+	return node
+
+
+func _build_config():
+	_add_dependency(self, "Config", Config.new())
+
+
+func _build_services() -> void:
 	var container = Node.new()
-	container.name = "Guide"
+	container.name = "Services"
 	add_child(container)
 
-	var state := GuideState.new()
-	state.name = "State"
-	container.add_child(state)
+	_add_dependency(container, "AudioService", AudioService.new())
+	_add_dependency(container, "GuideService", GuideService.new())
+	_add_dependency(container, "ScreenService", ScreenService.new())
+	
 
-	var service := GuideService.new(input_context, state)
-	service.name = "Service"
-	container.add_child(service)
-
-	Provider.provide(self, state)
-	Provider.provide(self, service)
-
-
-func _build_screen() -> void:
+func _build_state() -> void:
 	var container = Node.new()
-	container.name = "Screen"
+	container.name = "State"
 	add_child(container)
+	
+	_add_dependency(container, "AudioState", AudioState.new(10))
+	_add_dependency(container, "GuideState", GuideState.new())
+	_add_dependency(container, "ScreenState", ScreenState.new())
 
-	var state := ScreenState.new()
-	state.name = "State"
-	container.add_child(state)
 
-	var service := ScreenService.new(state)
-	service.name = "Service"
-	container.add_child(service)
-
-	Provider.provide(self, state)
-	Provider.provide(self, service)
+func _start_app():
+	add_child(app.instantiate())

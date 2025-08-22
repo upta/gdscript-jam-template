@@ -19,7 +19,7 @@ func inject(node: Node, token: Variant, all: bool = false):
 	var value = _find(node, key)
 
 	if value == null:
-		push_error("Unable to find token: ", token)
+		push_error("Unable to find key: ", key)
 
 	return value
 
@@ -30,17 +30,19 @@ func _find(node: Node, key: Variant):
 	if cache.has(key):
 		return cache.get(key)
 
-	var parent = node.get_parent()
-
-	if parent == null:
-		return null
-
-	var value = _get_data(parent).get(key)
+	# Check current node first
+	var value = _get_data(node).get(key)
 
 	if value != null:
 		cache.set(key, value)
 		return value
 
+	var parent = node.get_parent()
+
+	if parent == null:
+		return null
+
+	# Recursively search parent hierarchy
 	var found_value = _find(parent, key)
 
 	if found_value != null:

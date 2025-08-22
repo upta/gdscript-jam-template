@@ -1,0 +1,14 @@
+[gd_scene load_steps=5 format=3 uid="uid://dcopeiqot6g8w"]
+
+[ext_resource type="Script" uid="uid://dagcxm7jpnenl" path="res://app/root/app.gd" id="1_chpjv"]
+[ext_resource type="PackedScene" uid="uid://bnh2natk7iyqv" path="res://main_menu/main_menu.tscn" id="2_fmi80"]
+[ext_resource type="PackedScene" uid="uid://c7b0m701iax8f" path="res://app/screen_manager/screen_manager.tscn" id="3_fmi80"]
+[ext_resource type="PackedScene" uid="uid://famshh57hgyy" path="res://settings/settings_manager.tscn" id="4_q6onm"]
+
+[node name="App" type="Node"]
+script = ExtResource("1_chpjv")
+main_menu_scene = ExtResource("2_fmi80")
+
+[node name="ScreenManager" parent="." instance=ExtResource("3_fmi80")]
+
+[node name="SettingsManager" parent="." instance=ExtResource("4_q6onm")]

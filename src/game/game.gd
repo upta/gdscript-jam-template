@@ -1,6 +1,7 @@
 extends Node
 
 @onready var guide_service: GuideService = Provider.inject(self, GuideService)
+@onready var settings_manager: SettingsManager = Provider.inject(self, SettingsManager)
 
 @export var settings_action: GUIDEAction
 
@@ -12,4 +13,4 @@ func _ready() -> void:
 
 
 func _on_settings_action_triggered():
-	prints("show settings... game!")
+	settings_manager.toggle()

@@ -1,7 +1,9 @@
 extends Node
 
-@onready var screen_service: ScreenService = Provider.inject(self, ScreenService)
+@onready var audio_service: AudioService = Provider.inject(self, AudioService)
 @onready var guide_service: GuideService = Provider.inject(self, GuideService)
+@onready var screen_service: ScreenService = Provider.inject(self, ScreenService)
+@onready var settings_manager: SettingsManager = Provider.inject(self, SettingsManager)
 
 @export var game_scene: PackedScene
 @export var settings_action: GUIDEAction
@@ -17,11 +19,12 @@ func _ready() -> void:
 	settings.pressed.connect(_on_settings_pressed)
 	settings_action.triggered.connect(_on_settings_pressed)
 
-	print("Resource Type State Example values:")
+	audio_service.play_music(Audio.music.menu)
+	
 
 func _on_start_pressed():
 	screen_service.change_to_scene(game_scene)
 
 
 func _on_settings_pressed():
-	prints("show settings")
+	settings_manager.toggle()
