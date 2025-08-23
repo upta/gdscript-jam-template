@@ -1,0 +1,42 @@
+[gd_scene load_steps=8 format=3 uid="uid://b3kt4u20d5e37"]
+
+[ext_resource type="Script" uid="uid://b8bjbphdfddti" path="res://game/character/character.gd" id="1_d8xd1"]
+[ext_resource type="Texture2D" uid="uid://cd4fj6at1xd82" path="res://assets/textures/character.png" id="1_l8xil"]
+[ext_resource type="Resource" uid="uid://ckcdjsf6t2p4" path="res://guide/game/actions/attack.tres" id="2_c42js"]
+[ext_resource type="PackedScene" uid="uid://cvu7ulrwfwx5b" path="res://game/health/health_bar.tscn" id="2_k2vk2"]
+[ext_resource type="Resource" uid="uid://br0s7nixs8jaj" path="res://guide/game/actions/heal.tres" id="3_28pd3"]
+[ext_resource type="Resource" uid="uid://cyec7pmo03suc" path="res://guide/game/actions/cursor.tres" id="3_tu1mu"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_c42js"]
+radius = 32.0156
+
+[node name="Character" type="Node2D"]
+script = ExtResource("1_d8xd1")
+attack_action = ExtResource("2_c42js")
+cursor_action = ExtResource("3_tu1mu")
+heal_action = ExtResource("3_28pd3")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = ExtResource("1_l8xil")
+
+[node name="HealthBar" parent="." instance=ExtResource("2_k2vk2")]
+custom_minimum_size = Vector2(48, 10)
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = -24.0
+offset_top = 17.0
+offset_right = 24.0
+offset_bottom = 27.0
+grow_horizontal = 1
+grow_vertical = 1
+size_flags_horizontal = 0
+metadata/_edit_use_anchors_ = true
+
+[node name="Area2D" type="Area2D" parent="."]
+unique_name_in_owner = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_c42js")
+debug_color = Color(0.866667, 0, 0.145098, 0.419608)
