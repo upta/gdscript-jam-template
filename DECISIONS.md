@@ -51,6 +51,13 @@ compile + lint only.
 build. Tagging is the deliberate act, and /merge says out loud what a push
 triggers.
 
+**D8 — Branch playtest builds deploy to Cloudflare Pages.**
+Every push to a non-main branch publishes the web build to a per-branch
+preview URL; itch.io stays prod-only.
+*Why:* playtesting needs throwaway URLs testers just click. Pages gives
+per-branch previews natively with no server to babysit mid-jam; self-hosting
+adds infra during crunch, and GitHub Pages requires public repos.
+
 ## Closed
 
 _None yet. Superseded decisions land here as one-line stubs:_

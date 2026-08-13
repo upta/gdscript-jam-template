@@ -1,0 +1,93 @@
+name: Playtest
+
+# Branch playtest deploys (D8): every push to a non-main branch exports the
+# Web build and publishes it to Cloudflare Pages, which gives each branch its
+# own stable preview URL:
+#
+#   https://<branch-alias>.<project>.pages.dev
+#
+# (branch alias = the branch name lowercased with non-alphanumerics dashed;
+# wrangler's log prints the exact URL). main is deliberately excluded —
+# releases go through deploy.yml on tags (D7), so itch.io stays prod-only.
+#
+# One-time setup per game:
+#   1. Cloudflare dashboard → Workers & Pages → Create → Pages → Direct
+#      Upload (or: npx wrangler pages project create <name>), named to match
+#      PAGES_PROJECT below.
+#   2. Repository secrets:
+#        CLOUDFLARE_API_TOKEN  — API token with "Cloudflare Pages: Edit"
+#        CLOUDFLARE_ACCOUNT_ID — dashboard → Workers & Pages → right sidebar
+on:
+  push:
+    branches-ignore: ["main"]
+  workflow_dispatch:
+
+env:
+  # Must match ci.yml/deploy.yml's container tags and src/project.godot's
+  # features tag.
+  GODOT_VERSION: 4.7.1
+  PAGES_PROJECT: gdscript-jam-template # Cloudflare Pages project name — rename with the jam game
+
+concurrency:
+  group: playtest-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  export:
+    name: Web export
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.7.1
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Recreate symlinks
+        run: bash setup.sh
+
+      - name: Stage export templates
+        run: |
+          mkdir -v -p build/web ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+
+      - name: Web export
+        run: godot --headless --path src --export-release "Web" "$(pwd)/build/web/index.html"
+
+      - name: Prove the export produced a build
+        # Same exit-0 trap as deploy.yml: the files are the check.
+        run: |
+          test -s build/web/index.html
+          test -s build/web/index.pck
+          test -s build/web/index.wasm
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+          retention-days: 3
+
+  publish:
+    name: Publish to Cloudflare Pages
+    needs: export
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler@4 pages deploy build/web --project-name "$PAGES_PROJECT" --branch "${{ github.ref_name }}" --commit-hash "${{ github.sha }}"
+
+      - name: Playtest URL
+        run: |
+          ALIAS=$(echo "${{ github.ref_name }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+          echo "### Playtest build" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://$ALIAS.$PAGES_PROJECT.pages.dev" >> "$GITHUB_STEP_SUMMARY"

@@ -33,11 +33,13 @@ itch.io's no-special-headers hosting).
    must show `[App] Screen ready: res://main_menu/main_menu.tscn` and no
    errors, and the menu must actually render — look at it.
 
-## Export templates (one-time, local)
+## The mono trap
 
-Desktop exports need the 4.7.1 template bundle. If `export_web.ps1` reports
-them missing: download `Godot_v4.7.1-stable_export_templates.tpz` from the
-Godot 4.7.1 release page and extract its `templates/` contents into
-`%APPDATA%\Godot\export_templates\4.7.1.stable\`. CI's godot-ci container
-ships them already — the deploy pipeline runs these same export-and-prove
-steps on tag push.
+Godot 4's **mono editor cannot export web** — it refuses outright, even for a
+pure-GDScript project, and the mono template bundle ships no web templates.
+`export_web.ps1` handles this itself: if the resolved godot is mono (or the
+wrong version), it downloads the standard 4.7.1 editor to a local cache
+(~55 MB) and installs the standard template bundle (~1 GB, one time), then
+exports with that. CI's godot-ci container is a standard build with its own
+templates — the deploy pipeline runs these same export-and-prove steps on
+tag push.

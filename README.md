@@ -17,7 +17,8 @@ Play it, pattern-match it, replace it.
    kit symlinks and runs the first asset import.
 3. **Rename things:** `config/name` in `src/project.godot`;
    `ITCHIO_USERNAME` / `ITCHIO_GAME` in `.github/workflows/deploy.yml`;
-   `AppName` in `validation.config.psd1`.
+   `PAGES_PROJECT` in `.github/workflows/playtest.yml`; `AppName` in
+   `validation.config.psd1`.
 4. **itch.io:** create the project (Kind: HTML, viewport 1280×720, no
    payments). Create an API key (itch.io → Settings → API keys) and save it
    as the `ITCHIO_API_KEY` repository secret (Settings → Secrets and
@@ -43,6 +44,15 @@ exports the Web preset, proves the build actually produced files, and pushes
 it to itch.io with the tag as the version. CI (script compile + format/lint)
 runs on every PR and push to main.
 
+## Branch playtests
+
+Every push to a non-main branch deploys the web build to Cloudflare Pages at
+`https://<branch>.<project>.pages.dev` (D8) — throwaway URLs testers just
+click, while itch.io stays prod. One-time setup: create a Direct Upload
+Pages project matching `PAGES_PROJECT` in `playtest.yml`, and add the
+`CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` repository secrets (details
+in the workflow header).
+
 ## Without Claude
 
 Everything verifies from a plain shell:
@@ -66,9 +76,10 @@ git commit -m "chore(kit): bump agentic-godot-validation"
 
 ## Requirements
 
-- **Godot 4.7.1** on PATH (or set `GODOT_EXE`). Export templates are only
-  needed for local web exports — CI's container ships them; locally,
-  `export_web.ps1` tells you how to install them if they're missing.
+- **Godot 4.7.1** on PATH (or set `GODOT_EXE`). Local web exports are
+  self-sufficient: `export_web.ps1` downloads what it needs on first run —
+  including a standard editor if yours is the mono build, which cannot
+  export web in Godot 4.
 - **PowerShell 7** (`pwsh`) for the validation suite runner.
 - **Python + gdtoolkit** (`pip install "gdtoolkit==4.*"`, 4.5.0+) for
   format/lint — optional locally, enforced in CI.
