@@ -17,8 +17,8 @@ Play it, pattern-match it, replace it.
    kit symlinks and runs the first asset import.
 3. **Rename things:** `config/name` in `src/project.godot`;
    `ITCHIO_USERNAME` / `ITCHIO_GAME` in `.github/workflows/deploy.yml`;
-   `PAGES_PROJECT` in `.github/workflows/playtest.yml`; `AppName` in
-   `validation.config.psd1`.
+   `AppName` in `validation.config.psd1`. (The playtest workflow needs no
+   rename — its Pages project name derives from the repo name.)
 4. **itch.io:** create the project (Kind: HTML, viewport 1280×720, no
    payments). Create an API key (itch.io → Settings → API keys) and save it
    as the `ITCHIO_API_KEY` repository secret (Settings → Secrets and
@@ -52,12 +52,15 @@ click, while itch.io stays prod. Setup, once per game:
 
 1. **Cloudflare account** (the free tier is plenty):
    <https://dash.cloudflare.com>
-2. **Create the Pages project** — its name must match `PAGES_PROJECT` in
-   `.github/workflows/playtest.yml`:
+2. **Create the Pages project**, named after the repo, lowercased (the
+   workflow derives the same name automatically, which is what keeps repos
+   generated from this template from ever colliding — branch aliases are
+   only unique within a project; set `PAGES_PROJECT` in `playtest.yml` only
+   to override):
 
    ```powershell
    npx wrangler login
-   npx wrangler pages project create <name> --production-branch=main
+   npx wrangler pages project create <repo-name> --production-branch=main
    ```
 
    (Dashboard alternative: Workers & Pages → Create → Pages → Upload
