@@ -48,10 +48,35 @@ runs on every PR and push to main.
 
 Every push to a non-main branch deploys the web build to Cloudflare Pages at
 `https://<branch>.<project>.pages.dev` (D8) — throwaway URLs testers just
-click, while itch.io stays prod. One-time setup: create a Direct Upload
-Pages project matching `PAGES_PROJECT` in `playtest.yml`, and add the
-`CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` repository secrets (details
-in the workflow header).
+click, while itch.io stays prod. Setup, once per game:
+
+1. **Cloudflare account** (the free tier is plenty):
+   <https://dash.cloudflare.com>
+2. **Create the Pages project** — its name must match `PAGES_PROJECT` in
+   `.github/workflows/playtest.yml`:
+
+   ```powershell
+   npx wrangler login
+   npx wrangler pages project create <name> --production-branch=main
+   ```
+
+   (Dashboard alternative: Workers & Pages → Create → Pages → Upload
+   assets — it insists on a first upload; any file will do.)
+3. **Get the `CLOUDFLARE_ACCOUNT_ID` value** — dashboard → Workers & Pages;
+   the Account ID is in the right-hand sidebar. (It's also the hex segment
+   in the dashboard URL.)
+4. **Get the `CLOUDFLARE_API_TOKEN` value** — dashboard → My Profile → API
+   Tokens → Create Token → Custom token, with exactly one permission:
+   **Account → Cloudflare Pages → Edit**, scoped to your account. Copy it
+   immediately — it is shown once.
+5. **Add both as repository secrets** — repo → Settings → Secrets and
+   variables → Actions → New repository secret, named exactly
+   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+
+GitHub does **not** copy secrets through "Use this template": every jam repo
+needs both secrets added again (the same values work if it's the same
+Cloudflare account) and its own Pages project — the same way each repo needs
+its own `ITCHIO_API_KEY`.
 
 ## Without Claude
 

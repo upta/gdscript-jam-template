@@ -10,13 +10,10 @@ name: Playtest
 # wrangler's log prints the exact URL). main is deliberately excluded —
 # releases go through deploy.yml on tags (D7), so itch.io stays prod-only.
 #
-# One-time setup per game:
-#   1. Cloudflare dashboard → Workers & Pages → Create → Pages → Direct
-#      Upload (or: npx wrangler pages project create <name>), named to match
-#      PAGES_PROJECT below.
-#   2. Repository secrets:
-#        CLOUDFLARE_API_TOKEN  — API token with "Cloudflare Pages: Edit"
-#        CLOUDFLARE_ACCOUNT_ID — dashboard → Workers & Pages → right sidebar
+# One-time setup per game — full walkthrough in README § Branch playtests:
+# a Pages project named to match PAGES_PROJECT below, plus the
+# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets.
+# Secrets do NOT copy through "Use this template".
 on:
   push:
     branches-ignore: ["main"]
