@@ -23,10 +23,15 @@ Play it, pattern-match it, replace it.
    payments). Create an API key (itch.io → Settings → API keys) and save it
    as the `ITCHIO_API_KEY` repository secret (Settings → Secrets and
    variables → Actions).
-5. **First deploy:** `git tag v0.0.1 && git push origin v0.0.1` — or
+5. **Playtest secrets:** in the same Secrets and variables screen, add the
+   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets and the
+   `R2_PUBLIC_BASE` variable — same values as your other repos; where they
+   come from the first time is § Branch playtests below. (Secrets and
+   variables never copy through "Use this template".)
+6. **First deploy:** `git tag v0.0.1 && git push origin v0.0.1` — or
    Actions → Deploy → Run workflow. After the first upload, tick
    **"This file will be played in the browser"** on the itch upload and save.
-6. **Fill SPEC.md** (or run `/spec` in Claude Code) before the first feature.
+7. **Fill SPEC.md** (or run `/spec` in Claude Code) before the first feature.
 
 ## The loop
 
