@@ -50,7 +50,11 @@ func process() -> void:
 	# advertised the focused one's action. The fallback still resolves by
 	# distance, which keeps a silent target firing when it is legitimately the
 	# only candidate.
-	var winner := focused if focused != null and candidates.has(focused) else _resolve_closest(candidates, current_probe_data)
+	var winner := (
+		focused
+		if focused != null and candidates.has(focused)
+		else _resolve_closest(candidates, current_probe_data)
+	)
 
 	if winner != null:
 		winner.on_interaction(current_probe_data)
@@ -85,7 +89,9 @@ func get_registrations() -> Array[InteractionRegistration]:
 	return _registrations
 
 
-func _resolve_closest(candidates: Array[InteractionRegistration], probe_data: ProbeData) -> InteractionRegistration:
+func _resolve_closest(
+	candidates: Array[InteractionRegistration], probe_data: ProbeData
+) -> InteractionRegistration:
 	var closest: InteractionRegistration = null
 	var closest_dist_sq := INF
 

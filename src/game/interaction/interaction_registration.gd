@@ -1,5 +1,4 @@
-@abstract
-class_name InteractionRegistration
+@abstract class_name InteractionRegistration
 extends RefCounted
 
 # One interactable thing the probe can currently reach. Position and label are

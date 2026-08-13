@@ -3,8 +3,6 @@ extends Node
 
 signal volume_changed(bus: String, value: float)
 
-@onready var config: Config = Provider.inject(self, Config)
-
 var bus_values: Dictionary[String, float]
 
 var music_player := AudioStreamPlayer.new()
@@ -13,6 +11,7 @@ var sfx_available_players: Array[AudioStreamPlayer] = []
 var sfx_active_players: Array[AudioStreamPlayer] = []
 var sfx_pool_size: int
 
+@onready var config: Config = Provider.inject(self, Config)
 
 @warning_ignore("shadowed_variable")
 func _init(sfx_pool_size: int = 10) -> void:

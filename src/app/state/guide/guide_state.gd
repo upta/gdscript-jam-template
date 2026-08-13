@@ -4,7 +4,7 @@ extends Node
 signal input_mode_changed(input_mode: InputMode)
 signal game_mode_changed(old_mode: String, new_mode: String)
 
-enum InputMode {KBM, CONTROLLER}
+enum InputMode { KBM, CONTROLLER }
 
 # Set by GuideService each time mapping contexts change. Consumers (e.g.
 # InteractTarget) ignore trigger edges raised in that same physics frame,

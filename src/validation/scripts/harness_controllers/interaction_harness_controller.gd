@@ -75,18 +75,23 @@ func reset_harness() -> void:
 
 
 func get_observed_state() -> Dictionary:
+	var focused := interaction_service.focused
+
 	return {
-		"health": {
+		"health":
+		{
 			"a": character_a.health.current_health,
 			"b": character_b.health.current_health,
 		},
-		"interaction": {
-			"focused_exists": interaction_service.focused != null,
-			"focused_label": "" if interaction_service.focused == null else interaction_service.focused.get_label(),
+		"interaction":
+		{
+			"focused_exists": focused != null,
+			"focused_label": "" if focused == null else focused.get_label(),
 			"registration_count": interaction_service.get_registrations().size(),
 			"prompt_visible": prompt.visible,
 		},
-		"cursor": {
+		"cursor":
+		{
 			"x": _virtual_cursor.x,
 			"y": _virtual_cursor.y,
 		},

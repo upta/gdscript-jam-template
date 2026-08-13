@@ -1,10 +1,11 @@
 class_name AudioSlider
 extends HSlider
 
+@export var bus: String
+
 @onready var audio_service: AudioService = Provider.inject(self, AudioService)
 @onready var audio_state: AudioState = Provider.inject(self, AudioState)
 
-@export var bus: String
 
 func _ready() -> void:
 	value = audio_service.get_volume(bus)

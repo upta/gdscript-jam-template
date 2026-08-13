@@ -6,7 +6,7 @@ extends Area2D
 # (ACTION mode) or fires immediately on entry (ENTER mode). Ported from
 # trail-and-error.
 
-enum TriggerMode {ACTION, ENTER}
+enum TriggerMode { ACTION, ENTER }
 
 @export var mode: TriggerMode = TriggerMode.ACTION
 @export var trigger: GUIDEAction

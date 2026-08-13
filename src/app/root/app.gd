@@ -8,5 +8,5 @@ extends Node
 
 func _ready() -> void:
 	Provider.provide(self, settings_manager)
-	
+
 	screen_service.change_to_scene(main_menu_scene)
