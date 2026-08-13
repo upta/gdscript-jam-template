@@ -1,0 +1,15 @@
+# Symlinks created by setup.ps1 / setup.sh — their content lives in the submodule.
+# Leading slash matters: an unanchored `tools` matches at EVERY depth and would
+# silently swallow any future repo-owned tools/ directory elsewhere.
+/tools
+/src/addons/agentic_godot_validation
+/.claude/skills/author-validation-scenario
+/.claude/skills/debug-validation-failure
+
+# Validation artifacts (screenshots, logs, summaries) — regenerated every run.
+# The committed .gdignore keeps Godot from scanning/importing artifact files.
+/src/artifacts/*
+!/src/artifacts/.gdignore
+
+# CI build output
+/build/
