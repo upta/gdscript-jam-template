@@ -1,0 +1,65 @@
+{
+  "scenario_id": "interact_requires_target",
+  "version": 4,
+  "description": "Attacking with the cursor over empty space does nothing and shows no prompt; aiming at a character registers both its targets and shows the prompt.",
+  "harness_scene": "res://validation/harnesses/interaction_harness.tscn",
+  "done_contract": {
+    "initial_health": 100.0,
+    "targets_per_character": 2,
+    "physics_ticks_per_second": 60,
+    "frame_budget": 900
+  },
+  "artifact_contract": {
+    "required_files": [
+      "summary.json",
+      "event_log.json",
+      "scene_tree.json",
+      "console.log",
+      "screenshots/aimed_away.png",
+      "screenshots/aimed_at_target.png"
+    ],
+    "missing_file_is_failure": true
+  },
+  "exit_codes": {
+    "pass": 0,
+    "assertion_failure": 1,
+    "runtime_error": 2,
+    "timeout": 3,
+    "artifact_generation_error": 4
+  },
+  "cli_contract": {
+    "command_template": "godot --path <project> -- --test-mode --scenario <path> --artifacts <dir>"
+  },
+  "steps": [
+    { "op": "load_harness", "scene": "res://validation/harnesses/interaction_harness.tscn" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "press_action", "action": "aim_away" },
+    { "op": "wait_frames", "frames": 20 },
+    { "op": "release_action", "action": "aim_away" },
+    { "op": "press_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "release_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "checkpoint", "name": "aimed_away" },
+    { "op": "assert_value", "checkpoint": "aimed_away", "path": "harness_state.health.a", "comparator": "eq", "expected": 100.0 },
+    { "op": "assert_value", "checkpoint": "aimed_away", "path": "harness_state.health.b", "comparator": "eq", "expected": 100.0 },
+    { "op": "assert_value", "checkpoint": "aimed_away", "path": "harness_state.interaction.focused_exists", "comparator": "eq", "expected": false },
+    { "op": "assert_value", "checkpoint": "aimed_away", "path": "harness_state.interaction.prompt_visible", "comparator": "eq", "expected": false },
+    { "op": "assert_value", "checkpoint": "aimed_away", "path": "harness_state.interaction.registration_count", "comparator": "eq", "expected": 0 },
+    { "op": "press_action", "action": "aim_character_a" },
+    { "op": "wait_until", "path": "harness_state.interaction.focused_exists", "comparator": "eq", "expected": true, "timeout_frames": 300 },
+    { "op": "release_action", "action": "aim_character_a" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "checkpoint", "name": "aimed_at_target" },
+    { "op": "assert_value", "checkpoint": "aimed_at_target", "path": "harness_state.interaction.prompt_visible", "comparator": "eq", "expected": true },
+    {
+      "op": "assert_pipeline",
+      "sources": {
+        "registered": { "kind": "checkpoint", "checkpoint": "aimed_at_target", "path": "harness_state.interaction.registration_count" },
+        "expected_targets": { "kind": "contract", "path": "done_contract.targets_per_character" }
+      },
+      "assert": { "actual": "registered", "comparator": "eq", "expected_source": "expected_targets" }
+    },
+    { "op": "quit" }
+  ]
+}

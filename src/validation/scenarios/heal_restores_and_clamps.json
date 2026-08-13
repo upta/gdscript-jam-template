@@ -1,0 +1,60 @@
+{
+  "scenario_id": "heal_restores_and_clamps",
+  "version": 4,
+  "description": "Damage character A once, heal it back to full, then prove a second heal cannot push health past the maximum.",
+  "harness_scene": "res://validation/harnesses/interaction_harness.tscn",
+  "done_contract": {
+    "attack_damage": 10.0,
+    "initial_health": 100.0,
+    "physics_ticks_per_second": 60,
+    "frame_budget": 900
+  },
+  "artifact_contract": {
+    "required_files": [
+      "summary.json",
+      "event_log.json",
+      "scene_tree.json",
+      "console.log",
+      "screenshots/damaged.png",
+      "screenshots/healed.png",
+      "screenshots/clamped.png"
+    ],
+    "missing_file_is_failure": true
+  },
+  "exit_codes": {
+    "pass": 0,
+    "assertion_failure": 1,
+    "runtime_error": 2,
+    "timeout": 3,
+    "artifact_generation_error": 4
+  },
+  "cli_contract": {
+    "command_template": "godot --path <project> -- --test-mode --scenario <path> --artifacts <dir>"
+  },
+  "steps": [
+    { "op": "load_harness", "scene": "res://validation/harnesses/interaction_harness.tscn" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "press_action", "action": "aim_character_a" },
+    { "op": "wait_until", "path": "harness_state.interaction.focused_exists", "comparator": "eq", "expected": true, "timeout_frames": 300 },
+    { "op": "release_action", "action": "aim_character_a" },
+    { "op": "press_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "release_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "checkpoint", "name": "damaged" },
+    { "op": "assert_value", "checkpoint": "damaged", "path": "harness_state.health.a", "comparator": "eq", "expected": 90.0 },
+    { "op": "press_action", "action": "heal" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "release_action", "action": "heal" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "checkpoint", "name": "healed" },
+    { "op": "assert_value", "checkpoint": "healed", "path": "harness_state.health.a", "comparator": "eq", "expected": 100.0 },
+    { "op": "press_action", "action": "heal" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "release_action", "action": "heal" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "checkpoint", "name": "clamped" },
+    { "op": "assert_value", "checkpoint": "clamped", "path": "harness_state.health.a", "comparator": "eq", "expected": 100.0 },
+    { "op": "quit" }
+  ]
+}

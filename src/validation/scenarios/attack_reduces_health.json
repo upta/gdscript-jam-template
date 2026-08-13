@@ -1,0 +1,67 @@
+{
+  "scenario_id": "attack_reduces_health",
+  "version": 4,
+  "description": "Aim at character A, fire the attack action twice, and prove A loses exactly two attacks of health while B is untouched.",
+  "harness_scene": "res://validation/harnesses/interaction_harness.tscn",
+  "done_contract": {
+    "attack_damage": 10.0,
+    "initial_health": 100.0,
+    "physics_ticks_per_second": 60,
+    "frame_budget": 900
+  },
+  "artifact_contract": {
+    "required_files": [
+      "summary.json",
+      "event_log.json",
+      "scene_tree.json",
+      "console.log",
+      "screenshots/focused.png",
+      "screenshots/after_attacks.png"
+    ],
+    "missing_file_is_failure": true
+  },
+  "exit_codes": {
+    "pass": 0,
+    "assertion_failure": 1,
+    "runtime_error": 2,
+    "timeout": 3,
+    "artifact_generation_error": 4
+  },
+  "cli_contract": {
+    "command_template": "godot --path <project> -- --test-mode --scenario <path> --artifacts <dir>"
+  },
+  "steps": [
+    { "op": "load_harness", "scene": "res://validation/harnesses/interaction_harness.tscn" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "press_action", "action": "aim_character_a" },
+    { "op": "wait_until", "path": "harness_state.interaction.focused_exists", "comparator": "eq", "expected": true, "timeout_frames": 300 },
+    { "op": "release_action", "action": "aim_character_a" },
+    { "op": "checkpoint", "name": "focused" },
+    { "op": "assert_value", "checkpoint": "focused", "path": "harness_state.interaction.prompt_visible", "comparator": "eq", "expected": true },
+    { "op": "assert_value", "checkpoint": "focused", "path": "harness_state.interaction.focused_label", "comparator": "contains", "expected": "Attack" },
+    { "op": "press_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "release_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "press_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 5 },
+    { "op": "release_action", "action": "attack" },
+    { "op": "wait_frames", "frames": 10 },
+    { "op": "checkpoint", "name": "after_attacks" },
+    {
+      "op": "assert_pipeline",
+      "sources": {
+        "initial": { "kind": "contract", "path": "done_contract.initial_health" },
+        "damage": { "kind": "contract", "path": "done_contract.attack_damage" },
+        "after": { "kind": "checkpoint", "checkpoint": "after_attacks", "path": "harness_state.health.a" }
+      },
+      "pipeline": [
+        { "op": "subtract", "inputs": ["initial", "after"], "as": "health_lost" },
+        { "op": "add", "inputs": ["damage", "damage"], "as": "expected_loss" }
+      ],
+      "assert": { "actual": "health_lost", "comparator": "eq", "expected_source": "expected_loss" }
+    },
+    { "op": "assert_value", "checkpoint": "after_attacks", "path": "harness_state.health.b", "comparator": "eq", "expected": 100.0 },
+    { "op": "quit" }
+  ]
+}

@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://validation/scripts/harness_controllers/interaction_harness_controller.gd" id="1_ctrl"]
+[ext_resource type="PackedScene" uid="uid://b3kt4u20d5e37" path="res://game/character/character.tscn" id="3_char"]
+[ext_resource type="Script" path="res://game/interaction/interact_probe.gd" id="4_probe"]
+[ext_resource type="PackedScene" path="res://game/interaction/interact_prompt.tscn" id="5_prompt"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_probe"]
+radius = 4.0
+
+[node name="InteractionHarness" type="Node2D"]
+script = ExtResource("1_ctrl")
+
+[node name="Background" type="ColorRect" parent="."]
+z_index = -10
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+color = Color(0.129412, 0.14902, 0.2, 1)
+
+[node name="CharacterA" parent="." instance=ExtResource("3_char")]
+unique_name_in_owner = true
+position = Vector2(400, 300)
+
+[node name="CharacterB" parent="." instance=ExtResource("3_char")]
+unique_name_in_owner = true
+position = Vector2(800, 300)
+
+[node name="InteractProbe" type="Area2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_probe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractProbe"]
+shape = SubResource("CircleShape2D_probe")
+
+[node name="InteractPrompt" parent="." instance=ExtResource("5_prompt")]
+unique_name_in_owner = true
