@@ -33,6 +33,10 @@ func _load_scene(scene_path: String) -> void:
 	active_scene = scene.instantiate()
 	container.add_child(active_scene)
 
+	# Positive boot marker: verification greps for this instead of counting error
+	# lines, because a boot that dies before the first screen logs no errors at all.
+	print("[App] Screen ready: %s" % scene_path)
+
 	animation_player.play_backwards("overlay")
 	await animation_player.animation_finished
 
