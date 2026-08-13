@@ -46,40 +46,47 @@ runs on every PR and push to main.
 
 ## Branch playtests
 
-Every push to a non-main branch deploys the web build to Cloudflare Pages at
-`https://<branch>.<project>.pages.dev` (D8) — throwaway URLs testers just
-click, while itch.io stays prod. Setup, once per game:
+Every push to a non-main branch uploads the web build to Cloudflare R2 at
+`https://<bucket-public-url>/<repo>/<branch>/index.html` (D9) — throwaway
+URLs testers just click, while itch.io stays prod. (R2, not Cloudflare
+Pages: Pages caps files at 25 MiB and a stock Godot 4 web wasm is ~38 MiB.)
 
-1. **Cloudflare account** (the free tier is plenty):
-   <https://dash.cloudflare.com>
-2. **Create the Pages project**, named after the repo, lowercased (the
-   workflow derives the same name automatically, which is what keeps repos
-   generated from this template from ever colliding — branch aliases are
-   only unique within a project; set `PAGES_PROJECT` in `playtest.yml` only
-   to override):
+**Once per Cloudflare account** (the free tier is plenty —
+<https://dash.cloudflare.com>):
+
+1. **Create the shared bucket** — one bucket serves every game; uploads are
+   keyed `<repo>/<branch>/`, so repos can't collide:
 
    ```powershell
    npx wrangler login
-   npx wrangler pages project create <repo-name> --production-branch=main
+   npx wrangler r2 bucket create playtests
+   npx wrangler r2 bucket dev-url enable playtests
    ```
 
-   (Dashboard alternative: Workers & Pages → Create → Pages → Upload
-   assets — it insists on a first upload; any file will do.)
-3. **Get the `CLOUDFLARE_ACCOUNT_ID` value** — dashboard → Workers & Pages;
-   the Account ID is in the right-hand sidebar. (It's also the hex segment
-   in the dashboard URL.)
-4. **Get the `CLOUDFLARE_API_TOKEN` value** — dashboard → My Profile → API
+   (Dashboard alternative: R2 → Create bucket → `playtests`, then the
+   bucket's Settings → Public access → allow the r2.dev subdomain.)
+   Copy the public base URL it gives you — `https://pub-<hash>.r2.dev`.
+2. **Get the `CLOUDFLARE_API_TOKEN` value** — dashboard → My Profile → API
    Tokens → Create Token → Custom token, with exactly one permission:
-   **Account → Cloudflare Pages → Edit**, scoped to your account. Copy it
-   immediately — it is shown once.
-5. **Add both as repository secrets** — repo → Settings → Secrets and
-   variables → Actions → New repository secret, named exactly
-   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+   **Account → Workers R2 Storage → Edit**, scoped to your account. Copy it
+   immediately — it is shown once. (If you have an older token, editing its
+   permission works too.)
+3. **Get the `CLOUDFLARE_ACCOUNT_ID` value** — dashboard → Workers & Pages
+   or R2; the Account ID is in the right-hand sidebar. (It's also the hex
+   segment in the dashboard URL.)
 
-GitHub does **not** copy secrets through "Use this template": every jam repo
-needs both secrets added again (the same values work if it's the same
-Cloudflare account) and its own Pages project — the same way each repo needs
-its own `ITCHIO_API_KEY`.
+**Per repo** (secrets and variables do **not** copy through "Use this
+template" — same as `ITCHIO_API_KEY`):
+
+4. **Add both secrets** — repo → Settings → Secrets and variables →
+   Actions → New repository secret: `CLOUDFLARE_API_TOKEN` and
+   `CLOUDFLARE_ACCOUNT_ID` (the same values work on the same account).
+5. **Optional but nice:** add a repository **variable** named
+   `R2_PUBLIC_BASE` with the `https://pub-<hash>.r2.dev` base from step 1 —
+   the workflow's run summary then prints a clickable playtest link.
+
+The r2.dev URL is rate-limited by Cloudflare — fine for playtests; attach a
+custom domain to the bucket if it ever matters.
 
 ## Without Claude
 

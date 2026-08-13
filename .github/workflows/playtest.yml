@@ -1,19 +1,22 @@
 name: Playtest
 
-# Branch playtest deploys (D8): every push to a non-main branch exports the
-# Web build and publishes it to Cloudflare Pages, which gives each branch its
-# own stable preview URL:
+# Branch playtest deploys (D9): every push to a non-main branch exports the
+# Web build and uploads it to a Cloudflare R2 bucket under <repo>/<branch>/,
+# giving each branch a stable playtest URL:
 #
-#   https://<branch-alias>.<project>.pages.dev
+#   https://<bucket-public-url>/<repo>/<branch>/index.html
 #
-# (branch alias = the branch name lowercased with non-alphanumerics dashed;
-# wrangler's log prints the exact URL). main is deliberately excluded —
-# releases go through deploy.yml on tags (D7), so itch.io stays prod-only.
+# R2 rather than Cloudflare Pages because Pages caps files at 25 MiB and a
+# stock Godot 4 web wasm is ~38 MiB (D8, superseded). main is deliberately
+# excluded — releases go through deploy.yml on tags (D7), so itch.io stays
+# prod-only.
 #
-# One-time setup per game — full walkthrough in README § Branch playtests:
-# a Pages project named to match PAGES_PROJECT below, plus the
-# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets.
-# Secrets do NOT copy through "Use this template".
+# Setup — full walkthrough in README § Branch playtests. Once per Cloudflare
+# account: the shared bucket + its public dev URL + an API token with
+# "Workers R2 Storage: Edit". Per repo: the CLOUDFLARE_API_TOKEN and
+# CLOUDFLARE_ACCOUNT_ID secrets (they do NOT copy through "Use this
+# template"), plus the optional R2_PUBLIC_BASE repository variable for
+# clickable links in the run summary.
 on:
   push:
     branches-ignore: ["main"]
@@ -23,11 +26,14 @@ env:
   # Must match ci.yml/deploy.yml's container tags and src/project.godot's
   # features tag.
   GODOT_VERSION: 4.7.1
-  # Cloudflare Pages project name. Left empty it derives from the repo name
-  # (lowercased, non-alphanumerics dashed), so repos generated from this
-  # template can never collide into a shared project — branch aliases are
-  # only unique WITHIN a project. Set it only to target a different project.
-  PAGES_PROJECT: ""
+  # One shared bucket for every game on the account; uploads are keyed
+  # <repo>/<branch>/, so repos can never collide.
+  R2_BUCKET: playtests
+  # Optional repository VARIABLE (not secret): the bucket's public base URL
+  # (https://pub-<hash>.r2.dev) — set it to get a clickable link in the run
+  # summary. The hash is per-bucket and only visible in the dashboard, so the
+  # workflow cannot derive it.
+  R2_PUBLIC_BASE: ${{ vars.R2_PUBLIC_BASE }}
 
 concurrency:
   group: playtest-${{ github.ref }}
@@ -71,7 +77,7 @@ jobs:
           retention-days: 3
 
   publish:
-    name: Publish to Cloudflare Pages
+    name: Publish to Cloudflare R2
     needs: export
     runs-on: ubuntu-latest
     steps:
@@ -81,20 +87,38 @@ jobs:
           name: web-build
           path: build/web
 
-      - name: Resolve project name
-        id: project
-        run: |
-          NAME="${PAGES_PROJECT:-${{ github.event.repository.name }}}"
-          echo "name=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')" >> "$GITHUB_OUTPUT"
-
-      - name: Deploy
+      - name: Upload to R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler@4 pages deploy build/web --project-name "${{ steps.project.outputs.name }}" --branch "${{ github.ref_name }}" --commit-hash "${{ github.sha }}"
+        # Content types are set per object because R2 serves whatever metadata
+        # the upload stored — miss it and browsers download index.html instead
+        # of rendering it. no-cache keeps testers off stale builds at the edge.
+        run: |
+          REPO_SLUG=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+          BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+          PREFIX="$REPO_SLUG/$BRANCH_SLUG"
+          echo "prefix=$PREFIX" >> "$GITHUB_ENV"
+          cd build/web
+          for f in *; do
+            case "$f" in
+              *.html) CT="text/html; charset=utf-8" ;;
+              *.js)   CT="text/javascript" ;;
+              *.wasm) CT="application/wasm" ;;
+              *.pck)  CT="application/octet-stream" ;;
+              *.png)  CT="image/png" ;;
+              *.ico)  CT="image/x-icon" ;;
+              *.json) CT="application/json" ;;
+              *)      CT="application/octet-stream" ;;
+            esac
+            npx wrangler@4 r2 object put "$R2_BUCKET/$PREFIX/$f" --file "$f" --content-type "$CT" --cache-control "no-cache" --remote
+          done
 
       - name: Playtest URL
         run: |
-          ALIAS=$(echo "${{ github.ref_name }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
           echo "### Playtest build" >> "$GITHUB_STEP_SUMMARY"
-          echo "https://$ALIAS.${{ steps.project.outputs.name }}.pages.dev" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$R2_PUBLIC_BASE" ]; then
+            echo "$R2_PUBLIC_BASE/$prefix/index.html" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Uploaded to r2://$R2_BUCKET/$prefix/ — the link is your bucket's public URL + /$prefix/index.html. Set the R2_PUBLIC_BASE repository variable to get a clickable link here." >> "$GITHUB_STEP_SUMMARY"
+          fi
