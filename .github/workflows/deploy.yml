@@ -1,46 +1,80 @@
-name: itch.io deploy
+name: Deploy
 
+# Release pipeline. On a version tag (vX.Y.Z) — or manually from the Actions
+# tab — export the Web build, PROVE it produced files, and push it to itch.io.
+# Pushing main deploys nothing (D7): tagging is the deliberate act, and CI
+# covers correctness on main.
+#
+# Required repository secret:
+#   ITCHIO_API_KEY — a butler API key (itch.io → Settings → API keys)
 on:
   push:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    tags: ["v*"]
   workflow_dispatch:
 
 env:
+  # Must match the container image tag below AND src/project.godot's features
+  # tag — three places, and an image behind the project version fails only at
+  # export time.
   GODOT_VERSION: 4.7.1
-  ITCHIO_USERNAME: upta
-  ITCHIO_GAME: deploy-test
-  # ITCHIO_API_KEY needs to be set in Repository Secrets
+  ITCHIO_USERNAME: upta # itch.io account the game lives under
+  ITCHIO_GAME: deploy-test # itch.io project slug — rename with the jam game
 
 jobs:
-  docker_image:
-    runs-on: ubuntu-latest
-    outputs:
-      image_name: ${{ steps.build_image_name.outputs.image_name }}
-    steps:
-    - id: build_image_name
-      run: echo "image_name=barichello/godot-ci:${{ env.GODOT_VERSION }}" >> "$GITHUB_OUTPUT"
-
   export-web:
-    name: Web Export
+    name: Web export + itch.io publish
     runs-on: ubuntu-latest
-    needs: docker_image
     container:
-      image: ${{ needs.docker_image.outputs.image_name }}   
+      image: barichello/godot-ci:4.7.1
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Setup
+      - name: Recreate symlinks
+        # The web preset excludes the validation addon from the pck, but the
+        # checkout should still match a developer's, and setup.sh is cheap.
+        # Tracked non-executable — invoke via bash.
+        run: bash setup.sh
+
+      - name: Stage export templates
+        # The image ships templates under /root, but container jobs run with
+        # HOME=/github/home, so Godot looks elsewhere. Move them where it
+        # looks.
         run: |
-          mkdir -v -p build/linux build/windows build/mac build/web ~/.local/share/godot/export_templates
+          mkdir -v -p build/web ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
 
-      - name: Web Build
-        run: godot --headless --path ./src -v --export-release "Web" ../build/web/index.html
+      - name: Web export
+        run: godot --headless --path src --export-release "Web" "$(pwd)/build/web/index.html"
 
-      - name: Deploy to itch.io
-        run: butler push build/web $ITCHIO_USERNAME/$ITCHIO_GAME:web
+      - name: Prove the export produced a build
+        # --export-release exits 0 on an unknown preset having written
+        # nothing — the files' existence is the check, not the exit code
+        # (same trap src/tools/export_web.ps1 guards locally).
+        run: |
+          test -s build/web/index.html
+          test -s build/web/index.pck
+          test -s build/web/index.wasm
+
+      - name: Compute itch userversion
+        id: ver
+        # Tag push: the itch build version is the tag minus its leading "v".
+        # Manual dispatch has no version; butler auto-versions instead.
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            echo "userversion=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "userversion=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.ITCHIO_API_KEY }}
+        run: |
+          if [ -n "${{ steps.ver.outputs.userversion }}" ]; then
+            butler push build/web "$ITCHIO_USERNAME/$ITCHIO_GAME:web" --userversion "${{ steps.ver.outputs.userversion }}"
+          else
+            butler push build/web "$ITCHIO_USERNAME/$ITCHIO_GAME:web"
+          fi

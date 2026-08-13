@@ -44,6 +44,13 @@ Scenario input drives InputMap actions; harnesses bridge button edges into
 fake it, and warping loses to a physical mouse. Substituting the position
 source keeps everything else on its real path.
 
+**D7 — Deploys are tag-driven; pushing main deploys nothing.**
+`v*` tags (or a manual workflow run) run the itch.io pipeline; CI on main is
+compile + lint only.
+*Why:* a jam-crunch push to main should never silently replace the live
+build. Tagging is the deliberate act, and /merge says out loud what a push
+triggers.
+
 ## Closed
 
 _None yet. Superseded decisions land here as one-line stubs:_

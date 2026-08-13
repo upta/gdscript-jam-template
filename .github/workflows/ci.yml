@@ -1,0 +1,72 @@
+name: CI
+
+# Compile + style gate on PRs and pushes to main. The in-engine validation
+# suite is NOT run here — scenario runs need a windowed engine, so the suite
+# stays local, run before merging (./validate.ps1; it is the Definition of
+# Done's gate, this workflow is just the floor).
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: Scripts compile
+    runs-on: ubuntu-latest
+    container:
+      # Must match GODOT_VERSION in deploy.yml and src/project.godot's
+      # features tag — the env context is not available in container.image,
+      # so the tag is spelled out here.
+      image: barichello/godot-ci:4.7.1
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Recreate symlinks
+        # Materializes the validation addon into src/addons so the project
+        # scan matches a developer checkout. setup.sh is tracked
+        # non-executable — invoke via bash.
+        run: bash setup.sh
+
+      - name: Import assets
+        run: godot --headless --import --path src > /tmp/import.log 2>&1 || (cat /tmp/import.log && exit 1)
+
+      - name: Compile all scripts (1-frame editor pass)
+        # The editor exits 0 even when scripts fail to compile, so the grep is
+        # the gate, not the exit code. SCRIPT ERROR only: the known
+        # editor-start UID noise (CLAUDE.md § Known issues) is not a script
+        # error and must not fail the build.
+        run: |
+          godot --headless --editor --quit-after 1 --path src > /tmp/compile.log 2>&1 || (cat /tmp/compile.log && exit 1)
+          cat /tmp/compile.log
+          ! grep -h "SCRIPT ERROR" /tmp/import.log /tmp/compile.log
+
+  lint:
+    name: Format + lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install gdtoolkit
+        # 4.5.0+ required: earlier releases cannot parse @abstract.
+        run: pip install "gdtoolkit==4.*"
+
+      - name: gdformat + gdlint
+        # Repo-owned scripts only — src/addons is vendored and not ours to
+        # style. Mirrors src/tools/lint.ps1.
+        run: |
+          git ls-files -- src | grep '\.gd$' | grep -v '^src/addons/' > /tmp/gd_files.txt
+          xargs -a /tmp/gd_files.txt gdformat --check
+          xargs -a /tmp/gd_files.txt gdlint
