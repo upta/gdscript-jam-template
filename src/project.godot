@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Template"
 run/main_scene="uid://cdpvteme84tjq"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -34,3 +34,8 @@ enabled=PackedStringArray("res://addons/guide/plugin.cfg")
 [gui]
 
 theme/custom="uid://b7dww2qqyokis"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
