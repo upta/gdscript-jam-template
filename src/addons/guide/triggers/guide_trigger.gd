@@ -26,8 +26,24 @@ enum GUIDETriggerType {
 @export var actuation_threshold:float = 0.5
 var _last_value:Vector3
 
+## Returns whether this trigger is the same as the other trigger.
+## This is used to determine if a trigger can be reused during context switching.
+func is_same_as(other:GUIDETrigger) -> bool:
+	return self == other
+
+## Creates a clone of this trigger suitable for context merging.
+##
+## Returns a new trigger instance while preserving references to actions and other
+## shared resources. This ensures triggers watch the same actions across contexts.
+##
+## Default implementation uses shallow copy. Subclasses with sub-resources or arrays
+## should override this method to properly duplicate their internal structures while
+## still preserving action references.
+func clone() -> GUIDETrigger:
+	return duplicate()
+
 ## Returns the trigger type of this trigger.
-func _get_trigger_type() -> GUIDETriggerType: 
+func _get_trigger_type() -> GUIDETriggerType:
 	return GUIDETriggerType.EXPLICIT
 
 
@@ -58,8 +74,10 @@ func _is_axis2d_actuated(input:Vector3) -> bool:
 func _is_axis3d_actuated(input:Vector3) -> bool:
 	return input.is_finite() and input.length_squared() > actuation_threshold * actuation_threshold
 	
+## The name as it should be displayed in the editor.
 func _editor_name() -> String:
 	return "GUIDETrigger"
 	
+## The description as it should be displayed in the editor.
 func _editor_description() -> String:
 	return ""

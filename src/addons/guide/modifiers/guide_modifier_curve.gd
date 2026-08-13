@@ -19,12 +19,19 @@ extends GUIDEModifier
 
 ## Create default curve resource with a smoothstep, 0.0 - 1.0 input/output range
 static func default_curve() -> Curve:
-	var curve = Curve.new()
+	var curve := Curve.new()
 	curve.add_point(Vector2(0.0, 0.0))
 	curve.add_point(Vector2(1.0, 1.0))
 
 	return curve
 
+	
+func is_same_as(other: GUIDEModifier) -> bool:
+	return other is GUIDEModifierCurve and \
+		curve == other.curve and \
+		x == other.x and \
+		y == other.y and \
+		z == other.z
 
 func _modify_input(input: Vector3, delta: float, value_type: GUIDEAction.GUIDEActionValueType) -> Vector3:
 	# Curve should never be null

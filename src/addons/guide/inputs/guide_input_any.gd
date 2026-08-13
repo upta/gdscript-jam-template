@@ -50,6 +50,10 @@ func _needs_reset() -> bool:
 	# Needs reset because we cannot detect the absence of input.
 	return true
 
+func _reset() -> void:
+	_value = Vector3.ZERO
+	_refresh()
+
 func _begin_usage() -> void:
 	# subscribe to relevant input events
 	if mouse_movement:
@@ -64,9 +68,9 @@ func _begin_usage() -> void:
 		_state.joy_axis_state_changed.connect(_refresh)
 	if touch:
 		_state.touch_state_changed.connect(_refresh)
-		
+	_state.application_focus_lost.connect(_on_application_focus_lost)
 	_refresh()
-	
+
 func _end_usage() -> void:
 	# unsubscribe from input events
 	if mouse_movement:
@@ -81,6 +85,15 @@ func _end_usage() -> void:
 		_state.joy_axis_state_changed.disconnect(_refresh)
 	if touch:
 		_state.touch_state_changed.disconnect(_refresh)
+	_state.application_focus_lost.disconnect(_on_application_focus_lost)
+
+func _on_application_focus_lost() -> void:
+	# Clear our value directly rather than going through _refresh(), because
+	# _refresh() will not update the value if it is already non-zero (by design,
+	# to keep fast inputs alive for the full frame). Focus loss is not an input
+	# event — the state has already been cleared in GUIDEInputState — so we must
+	# bypass that guard and clear immediately.
+	_value = Vector3.ZERO
 
 func _refresh() -> void:
 	# if the input was already actuated this frame, remain
@@ -118,9 +131,14 @@ func _refresh() -> void:
 
 func is_same_as(other:GUIDEInput) -> bool:
 	return other is GUIDEInputAny and \
-		other.mouse == mouse and \
-		other.joy == joy and \
-		other.keyboard == keyboard 
+		mouse_buttons == other.mouse_buttons and \
+		mouse_movement == other.mouse_movement and \
+		joy_buttons == other.joy_buttons and \
+		joy_axes == other.joy_axes and \
+		keyboard == other.keyboard and \
+		touch == other.touch and \
+		is_equal_approx(minimum_mouse_movement_distance, other.minimum_mouse_movement_distance) and \
+		is_equal_approx(minimum_joy_axis_actuation_strength, other.minimum_joy_axis_actuation_strength)
 
 func _editor_name() -> String:
 	return "Any Input"
@@ -134,7 +152,7 @@ func _native_value_type() -> GUIDEAction.GUIDEActionValueType:
 	return GUIDEAction.GUIDEActionValueType.BOOL
 
 # support for legacy properties
-func _get_property_list():
+func _get_property_list() -> Array[Dictionary]:
 	return [
 		{
 			"name": "mouse",
@@ -148,3 +166,15 @@ func _get_property_list():
 		}
 	]
 	
+func _device_type() -> DeviceType:
+	var result:DeviceType = DeviceType.NONE
+	if joy_axes or joy_buttons:
+		result |= DeviceType.JOY
+	if mouse_buttons or mouse_movement:
+		result |= DeviceType.MOUSE
+	if keyboard:
+		result |= DeviceType.KEYBOARD
+	if touch:
+		result |= DeviceType.TOUCH
+		
+	return result

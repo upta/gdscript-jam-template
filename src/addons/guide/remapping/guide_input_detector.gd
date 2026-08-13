@@ -5,16 +5,7 @@ class_name GUIDEInputDetector
 extends Node
 
 ## The device type for which the input should be filtered.
-enum DeviceType {
-	## Only detect input from keyboard.
-	KEYBOARD = 1,
-	## Only detect input from the mouse.
-	MOUSE = 2,
-	## Only detect input from joysticks/gamepads.
-	JOY = 4
-	# touch doesn't make a lot of sense as this is usually
-	# not remappable.
-}
+const DeviceType = GUIDEInput.DeviceType
 
 ## Which joy index should be used for detected joy events
 enum JoyIndex {
@@ -29,10 +20,12 @@ enum DetectionState {
 	IDLE = 0,
 	# The detector is currently counting down before starting the detection.
 	COUNTDOWN = 3,
+	# The detector waits for all abort inputs to be released before starting the detection.
+	INPUT_PRE_CLEAR = 4,
 	# The detector is currently detecting input.
 	DETECTING = 1,
-	# The detector has finished detecting but is waiting for input to be released.
-	WAITING_FOR_INPUT_CLEAR = 2,
+	# The detector has finished detecting but is waiting for input to be released after the detection.
+	INPUT_POST_CLEAR = 2,
 }
 
 ## A countdown between initiating a dection and the actual start of the 
@@ -67,8 +60,6 @@ signal input_detected(input:GUIDEInput)
 # The timer for the detection countdown.
 var _timer:Timer
 
-# Our copy of the input state
-var _input_state:GUIDEInputState
 # The current state of the detection.
 var _status:DetectionState = DetectionState.IDLE
 # Mapping contexts that were active when the detection started. We need to restore these once the detection is
@@ -82,7 +73,6 @@ func _ready():
 	# don't run the process function if we are not detecting to not waste resources
 	set_process(false)
 	_timer = Timer.new()
-	_input_state = GUIDEInputState.new()
 	_timer.one_shot = true
 	add_child(_timer, false, Node.INTERNAL_MODE_FRONT)
 	_timer.timeout.connect(_begin_detection)
@@ -123,10 +113,13 @@ func detect(value_type:GUIDEAction.GUIDEActionValueType,
 	if device_types == null:
 		push_error("Device types must not be null. Supply an empty array if you want to detect input from all devices.")
 		return
+		
+	if device_types.has(DeviceType.TOUCH):
+		push_error("Detecting touch events is not supported.")
 	
 
 	# If we are already detecting, abort this.
-	if _status == DetectionState.DETECTING or _status == DetectionState.WAITING_FOR_INPUT_CLEAR:
+	if _status == DetectionState.DETECTING or _status == DetectionState.INPUT_PRE_CLEAR or _status == DetectionState.INPUT_POST_CLEAR:
 		for input in abort_detection_on:
 			input._end_usage()
 	
@@ -136,19 +129,24 @@ func detect(value_type:GUIDEAction.GUIDEActionValueType,
 	_value_type = value_type
 	_device_types = device_types
 	_timer.stop()
-	_timer.start(detection_countdown_seconds)
-
+	
+	if detection_countdown_seconds > 0:
+		_timer.start(detection_countdown_seconds)
+	else:
+		_begin_detection.call_deferred()
+		
 ## This is called by the timer when the countdown has elapsed.
 func _begin_detection():
-	# set status to detecting
-	_status = DetectionState.DETECTING
-	# reset and clear the input state
-	_input_state._clear()
-	_input_state._reset()
+	# when we begin we want to make sure that any abort input is
+	# currently not actuated, otherwise we'd get wrong results.
+	# therefore we now run a pre-clear phase where we ensure that 
+	# abort input is not pressed.
+	
+	_status = DetectionState.INPUT_PRE_CLEAR
 
 	# enable all abort detection inputs
 	for input in abort_detection_on:
-		input._state = _input_state
+		input._state = GUIDE._input_state
 		input._begin_usage()
 
 	# we also use this inside the editor where the GUIDE
@@ -161,9 +159,11 @@ func _begin_detection():
 		# disable all mapping contexts
 		for context in _saved_mapping_contexts:
 			GUIDE.disable_mapping_context(context)
-		
-	detection_started.emit()
-
+			
+	# enable _process so we can start the pre-clear phase
+	# once the _process function has determined that no abort input
+	# is currently pressed, it will switch to detection phase
+	set_process(true)
 
 ## Aborts a running detection. If no detection currently runs
 ## does nothing.
@@ -178,8 +178,8 @@ func abort_detection() -> void:
 
 ## This is called while we are waiting for input to be released.
 func _process(delta: float) -> void:
-	# if we are not detecting, we don't need to do anything
-	if _status != DetectionState.WAITING_FOR_INPUT_CLEAR:
+	# if we are not waiting for input clear, we don't need to do anything
+	if _status != DetectionState.INPUT_PRE_CLEAR and _status != DetectionState.INPUT_POST_CLEAR:
 		set_process(false)
 		return
 
@@ -193,6 +193,18 @@ func _process(delta: float) -> void:
 			return
 			
 	# if we are here, the input is no longer actuated
+	
+	if _status == DetectionState.INPUT_PRE_CLEAR:
+		# pre-clear phase is finished, we can now start the actual
+		# detection
+		# print("pre-clear done, detecting now")
+		_status = DetectionState.DETECTING
+		set_process(false)
+		detection_started.emit()
+		return
+	
+	# otherwise, this was post-clear, so we can tear down the whole
+	# thing.
 	
 	# tear down the inputs
 	for input in abort_detection_on:
@@ -214,8 +226,7 @@ func _input(event:InputEvent) -> void:
 	if _status == DetectionState.IDLE:
 		return
 		
-	# feed the event into the state
-	_input_state._input(event)
+	# print(event)
 
 	# while detecting, we're the only ones consuming input and we eat this input
 	# to not accidentally trigger built-in Godot mappings (e.g. UI stuff)
@@ -231,6 +242,7 @@ func _input(event:InputEvent) -> void:
 		for input in abort_detection_on:
 			# if it triggers, we abort
 			if input._value.is_finite() and input._value.length() > 0:
+				# print("abort")
 				abort_detection()
 				return	
 			
@@ -269,6 +281,9 @@ func _matches_device_types(event:InputEvent) -> bool:
 
 			
 func _try_detect_bool(event:InputEvent) -> void:
+	# we always detect key input on release to avoid
+	# edge cases with multiple key invocations and modifier keys.
+	
 	if event is InputEventKey and event.is_released():
 		var result := GUIDEInputKey.new()
 		result.key = event.physical_keycode
@@ -291,23 +306,32 @@ func _try_detect_bool(event:InputEvent) -> void:
 		result.joy_index = _find_joy_index(event.device)
 		_deliver(result)
 		
-	if allow_triggers_for_boolean_actions:
-		# only allow joypad trigger buttons
-		if not (event is InputEventJoypadMotion):
+	if event is InputEventJoypadMotion:
+		if event.axis == JOY_AXIS_TRIGGER_LEFT or event.axis == JOY_AXIS_TRIGGER_RIGHT:
+			if allow_triggers_for_boolean_actions:
+				var result := GUIDEInputJoyAxis1D.new()
+				result.axis = event.axis
+				result.joy_index = _find_joy_index(event.device)
+				_deliver(result)
 			return
-		if event.axis != JOY_AXIS_TRIGGER_LEFT and \
-				event.axis != JOY_AXIS_TRIGGER_RIGHT:
+
+		if abs(event.axis_value) < minimum_axis_amplitude:
 			return
-			
-		var result := GUIDEInputJoyAxis1D.new()
+
+		var result := GUIDEInputJoyDirection.new()
 		result.axis = event.axis
-		result.joy_index =  _find_joy_index(event.device)
+		result.direction = GUIDEInputJoyDirection.Direction.POSITIVE \
+			if event.axis_value > 0 \
+			else GUIDEInputJoyDirection.Direction.NEGATIVE
+		result.joy_index = _find_joy_index(event.device)
 		_deliver(result)
 					
 		
 		
 func _try_detect_axis_1d(event:InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	# we sometimes get motion events where no relative movement happened, we are only
+	# interested in the ones where it does
+	if event is InputEventMouseMotion and event.relative.length_squared() > 0:
 		var result := GUIDEInputMouseAxis1D.new()
 		# Pick the direction in which the mouse was moved more.
 		if abs(event.relative.x) > abs(event.relative.y):
@@ -370,7 +394,8 @@ func _find_joy_index(device_id:int) -> int:
 	return -1
 
 func _deliver(input:GUIDEInput) -> void:
+	# print("deliver" , input)
 	_last_detected_input = input
-	_status = DetectionState.WAITING_FOR_INPUT_CLEAR
+	_status = DetectionState.INPUT_POST_CLEAR
 	# enable processing so we can check if the input is released before we re-enable GUIDE's mapping contexts
 	set_process(true)

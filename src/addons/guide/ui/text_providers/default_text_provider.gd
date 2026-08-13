@@ -6,7 +6,7 @@ func _init():
 	priority = 0
 	_is_on_desktop = OS.has_feature("linuxbsd") or OS.has_feature("macos") or OS.has_feature("windows")
 	
-func supports(input:GUIDEInput) -> bool:
+func supports(input:GUIDEInput, options:GUIDEInputFormattingOptions) -> bool:
 	return true
 	
 
@@ -14,26 +14,9 @@ func _format(input:String) -> String:
 	return "[%s]" % [input]
 
 	
-func get_text(input:GUIDEInput) -> String:
+func get_text(input:GUIDEInput, options:GUIDEInputFormattingOptions) -> String:
 	if input is GUIDEInputKey:
 		var result:PackedStringArray = []
-		if input.control:
-			var ctrl = GUIDEInputKey.new()
-			ctrl.key = KEY_CTRL
-			result.append(get_text(ctrl))
-		if input.alt:
-			var alt = GUIDEInputKey.new()
-			alt.key = KEY_ALT
-			result.append(get_text(alt))
-		if input.shift:
-			var shift = GUIDEInputKey.new()
-			shift.key = KEY_SHIFT
-			result.append(get_text(shift))
-		if input.meta:
-			var meta = GUIDEInputKey.new()
-			meta.key = KEY_META
-			result.append(get_text(meta))
-		
 		var the_key = input.key
 		
 		# if we are on desktop, translate the physical keycode into the actual label
@@ -98,6 +81,33 @@ func get_text(input:GUIDEInput) -> String:
 			JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y:
 				return _format(tr("Stick 2"))
 				
+	if input is GUIDEInputJoyDirection:
+		match input.axis:
+			JOY_AXIS_LEFT_X:
+				match input.direction:
+					GUIDEInputJoyDirection.Direction.POSITIVE:
+						return _format(tr("Stick 1 Right"))
+					GUIDEInputJoyDirection.Direction.NEGATIVE:
+						return _format(tr("Stick 1 Left"))
+			JOY_AXIS_LEFT_Y:
+				match input.direction:
+					GUIDEInputJoyDirection.Direction.POSITIVE:
+						return _format(tr("Stick 1 Down"))
+					GUIDEInputJoyDirection.Direction.NEGATIVE:
+						return _format(tr("Stick 1 Up"))
+			JOY_AXIS_RIGHT_X:
+				match input.direction:
+					GUIDEInputJoyDirection.Direction.POSITIVE:
+						return _format(tr("Stick 2 Right"))
+					GUIDEInputJoyDirection.Direction.NEGATIVE:
+						return _format(tr("Stick 2 Left"))
+			JOY_AXIS_RIGHT_Y:
+				match input.direction:
+					GUIDEInputJoyDirection.Direction.POSITIVE:
+						return _format(tr("Stick 2 Down"))
+					GUIDEInputJoyDirection.Direction.NEGATIVE:
+						return _format(tr("Stick 2 Up"))
+
 	if input is GUIDEInputJoyButton:
 		return _format(tr("Joy %s") % [input.button])
 		
@@ -131,9 +141,9 @@ func get_text(input:GUIDEInput) -> String:
 	if input is GUIDEInputTouchAxis1D:
 		match input.axis:
 			GUIDEInputTouchAxis1D.GUIDEInputTouchAxis.X:
-				_format(tr("Touch Left/Right %s") % [input.finger_index  if input.finger_index >= 0 else "Average"])
+				return _format(tr("Touch Left/Right %s") % [input.finger_index  if input.finger_index >= 0 else "Average"])
 			GUIDEInputTouchAxis1D.GUIDEInputTouchAxis.Y:
-				_format(tr("Touch Up/Down %s") % [input.finger_index  if input.finger_index >= 0 else "Average"])
+				return _format(tr("Touch Up/Down %s") % [input.finger_index  if input.finger_index >= 0 else "Average"])
 	
 	if input is GUIDEInputTouchAxis2D:
 		return _format(tr("Touch Axis 2D %s") % [input.finger_index  if input.finger_index >= 0 else "Average"])

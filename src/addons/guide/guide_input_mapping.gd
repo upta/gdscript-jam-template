@@ -86,7 +86,9 @@ var _explicit_count:int = 0
 ## Called when the mapping is started to be used by GUIDE. Calculates 
 ## the number of implicit and explicit triggers so we don't need to do this
 ## per frame. Also creates a default trigger when none is set.
-func _initialize() -> void :
+## finally initializes the _last_value of all triggers to the current
+## state of the input.
+func _initialize(value_type:GUIDEAction.GUIDEActionValueType) -> void :
 	_trigger_list.clear()
 	
 	_implicit_count = 0
@@ -95,11 +97,18 @@ func _initialize() -> void :
 	
 	if triggers.is_empty():
 		# make a default trigger and use that
-		var default_trigger = GUIDETriggerDown.new()
+		var default_trigger := GUIDETriggerDown.new()
 		default_trigger.actuation_threshold = 0
 		_explicit_count = 1
 		_trigger_list.append(default_trigger)
 		return
+		
+	# Collect the current input value
+	var input_value:Vector3 = input._value if input != null else Vector3.ZERO
+	
+	# Run it through all modifiers
+	for modifier:GUIDEModifier in modifiers:
+		input_value = modifier._modify_input(input_value, 0, value_type)		
 	
 	for trigger in triggers:
 		match trigger._get_trigger_type():
@@ -117,9 +126,13 @@ func _initialize() -> void :
 			else:
 				_trigger_hold_threshold = min(_trigger_hold_threshold, trigger.hold_treshold)
 		
+		# initialize the last value, so that e.g. the "pressed" trigger
+		# will not immediately trigger when the key was already 
+		# pressed when the trigger came to life.
+		trigger._last_value = input_value
 		
 
-func _update_state(delta:float, value_type:GUIDEAction.GUIDEActionValueType):
+func _update_state(delta:float, value_type:GUIDEAction.GUIDEActionValueType) -> void:
 	# Collect the current input value
 	var input_value:Vector3 = input._value if input != null else Vector3.ZERO
 	
@@ -139,7 +152,7 @@ func _update_state(delta:float, value_type:GUIDEAction.GUIDEActionValueType):
 		var trigger_result:GUIDETrigger.GUIDETriggerState = trigger._update_state(_value, delta, value_type)
 		trigger._last_value = _value
 		
-		var trigger_type = trigger._get_trigger_type()
+		var trigger_type := trigger._get_trigger_type()
 		if trigger_result == GUIDETrigger.GUIDETriggerState.TRIGGERED:
 			match trigger_type:
 				GUIDETrigger.GUIDETriggerType.EXPLICIT:
