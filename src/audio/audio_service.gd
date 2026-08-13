@@ -4,7 +4,7 @@ extends Node
 @onready var state: AudioState = Provider.inject(self, AudioState)
 
 
-func play_sfx(audio_stream: AudioStream):
+func play_sfx(audio_stream: AudioStream) -> void:
 	var player := state.get_available_player()
 
 	if player == null:
@@ -15,7 +15,7 @@ func play_sfx(audio_stream: AudioStream):
 	player.play()
 
 
-func play_music(audio_stream: AudioStream):
+func play_music(audio_stream: AudioStream) -> void:
 	state.music_player.stream = audio_stream
 	state.music_player.play()
 
@@ -28,7 +28,7 @@ func get_volume(bus: String) -> float:
 	return state.bus_values[bus]
 
 
-func set_volume(bus: String, value: float):
+func set_volume(bus: String, value: float) -> void:
 	if not state.bus_values.has(bus):
 		push_error("Bus '%s' not found" % bus)
 		return
