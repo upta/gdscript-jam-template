@@ -41,9 +41,12 @@ git fetch --prune origin
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
 $current = git branch --show-current
-$remoteBranches = @(git branch -r --format="%(refname:short)" |
-        Where-Object { $_ -notmatch "HEAD" } |
-        ForEach-Object { $_ -replace "^origin/", "" })
+# Filter on %(symref): it is empty for real branches and set for the origin/HEAD
+# pointer — whose %(refname:short) renders as just "origin", so a "HEAD" text
+# match never catches it and a ghost "origin" branch shows up in the picker.
+$remoteBranches = @(git branch -r --format="%(refname:short)|%(symref)" |
+        Where-Object { ($_ -split "\|")[1] -eq "" } |
+        ForEach-Object { (($_ -split "\|")[0]) -replace "^origin/", "" })
 
 $targetBranch = $current
 if ($Branch) {
