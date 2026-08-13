@@ -65,6 +65,8 @@ func _update_input() -> void:
 		push_error(error_message % active_game_mode)
 		return
 
+	GuideState.last_context_change_frame = Engine.get_physics_frames()
+
 	match state.input_mode:
 		GuideState.InputMode.KBM:
 			if context.global_kbm_context != null:
