@@ -1,8 +1,8 @@
 class_name GuideState
 extends Node
 
-signal input_mode_changed(input_mode)
-signal game_mode_changed(old_mode, new_mode)
+signal input_mode_changed(input_mode: InputMode)
+signal game_mode_changed(old_mode: String, new_mode: String)
 
 enum InputMode {KBM, CONTROLLER}
 
@@ -12,7 +12,7 @@ var active_game_mode := "":
 
 	set(value):
 		if value != active_game_mode:
-			var old = active_game_mode
+			var old := active_game_mode
 			active_game_mode = value
 			game_mode_changed.emit(old, active_game_mode)
 

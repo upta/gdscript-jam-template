@@ -8,7 +8,7 @@ var active_path := "":
 		return active_path
 
 	set(value):
-		var old = active_path
+		var old := active_path
 		active_path = value
 
 		active_path_changed.emit(old, active_path)

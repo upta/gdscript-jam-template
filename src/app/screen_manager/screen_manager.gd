@@ -13,11 +13,11 @@ func _ready() -> void:
 	screen_state.active_path_changed.connect(_screen_changed)
 
 
-func _screen_changed(_old: String, new: String):
+func _screen_changed(_old: String, new: String) -> void:
 	_load_scene(new)
 
 
-func _load_scene(scene_path: String):
+func _load_scene(scene_path: String) -> void:
 	canvas_layer.show()
 
 	if active_scene != null:
@@ -29,7 +29,7 @@ func _load_scene(scene_path: String):
 		container.remove_child.call_deferred(active_scene)
 		await active_scene.tree_exited
 
-	var scene = load(scene_path)
+	var scene: PackedScene = load(scene_path)
 	active_scene = scene.instantiate()
 	container.add_child(active_scene)
 

@@ -8,13 +8,13 @@ func _ready() -> void:
 	settings_menu.visible = false
 
 
-func show():
+func show() -> void:
 	settings_menu.visible = true
 
 
-func toggle():
+func toggle() -> void:
 	settings_menu.visible = !settings_menu.visible
 
 
-func hide():
+func hide() -> void:
 	settings_menu.visible = false

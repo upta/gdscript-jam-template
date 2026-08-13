@@ -12,5 +12,5 @@ func _ready() -> void:
 	settings_action.triggered.connect(_on_settings_action_triggered)
 
 
-func _on_settings_action_triggered():
+func _on_settings_action_triggered() -> void:
 	settings_manager.toggle()

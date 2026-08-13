@@ -22,7 +22,7 @@ func _add_dependency(container: Node, label: String, node: Variant) -> Variant:
 	return node
 
 
-func _build_config():
+func _build_config() -> void:
 	_add_dependency(self, "Config", Config.new())
 
 
@@ -46,5 +46,5 @@ func _build_state() -> void:
 	_add_dependency(container, "ScreenState", ScreenState.new())
 
 
-func _start_app():
+func _start_app() -> void:
 	add_child(app.instantiate())

@@ -4,7 +4,7 @@ extends Node
 var _config: ConfigFile
 var _file_path: String
 
-func _init(file_path: String = "user://config.cfg"):
+func _init(file_path: String = "user://config.cfg") -> void:
 	_file_path = file_path
 	_config = ConfigFile.new()
 

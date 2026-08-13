@@ -8,16 +8,17 @@ extends HSlider
 
 func _ready() -> void:
 	value = audio_service.get_volume(bus)
-	
+
 	audio_state.volume_changed.connect(_on_volume_changed)
 	value_changed.connect(_on_value_changed)
 
 
-func _on_volume_changed(target_bus: String, target_value: float):
+func _on_volume_changed(target_bus: String, target_value: float) -> void:
 	if bus != target_bus:
 		return
-		
+
 	value = target_value
 
-func _on_value_changed(target_value: float):
+
+func _on_value_changed(target_value: float) -> void:
 	audio_service.set_volume(bus, target_value)

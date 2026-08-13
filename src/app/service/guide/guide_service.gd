@@ -7,11 +7,11 @@ extends Node
 
 func _ready() -> void:
 	if context.switch_to_controller_action:
-		var controller_mode = GuideState.InputMode.CONTROLLER
+		var controller_mode := GuideState.InputMode.CONTROLLER
 		context.switch_to_controller_action.triggered.connect(_set_input_mode.bind(controller_mode))
 
 	if context.switch_to_kbm_action:
-		var kbm_mode = GuideState.InputMode.KBM
+		var kbm_mode := GuideState.InputMode.KBM
 		context.switch_to_kbm_action.triggered.connect(_set_input_mode.bind(kbm_mode))
 
 	state.game_mode_changed.connect(_on_game_mode_changed)
@@ -21,7 +21,7 @@ func _ready() -> void:
 
 
 func set_game_mode(mode: String) -> void:
-	var mode_exists = false
+	var mode_exists := false
 
 	for mode_context in context.input_mode_contexts:
 		if mode_context.game_mode == mode:
@@ -48,12 +48,12 @@ func _set_input_mode(mode: GuideState.InputMode) -> void:
 
 
 func _update_input() -> void:
-	var active_game_mode = state.active_game_mode
+	var active_game_mode := state.active_game_mode
 
 	if active_game_mode.is_empty():
 		return
 
-	var game_mode_context = null
+	var game_mode_context: InputModeContext = null
 
 	for mode_context in context.input_mode_contexts:
 		if mode_context.game_mode == active_game_mode:
@@ -61,7 +61,7 @@ func _update_input() -> void:
 			break
 
 	if game_mode_context == null:
-		var error_message = "No context found for game mode '%s'"
+		var error_message := "No context found for game mode '%s'"
 		push_error(error_message % active_game_mode)
 		return
 
@@ -75,7 +75,7 @@ func _update_input() -> void:
 			if game_mode_context.kbm_context != null:
 				GUIDE.enable_mapping_context(game_mode_context.kbm_context)
 			else:
-				var warning_message = "KBM context for game mode '%s' is null"
+				var warning_message := "KBM context for game mode '%s' is null"
 				push_warning(warning_message % active_game_mode)
 
 		GuideState.InputMode.CONTROLLER:
@@ -87,5 +87,5 @@ func _update_input() -> void:
 			if game_mode_context.controller_context != null:
 				GUIDE.enable_mapping_context(game_mode_context.controller_context)
 			else:
-				var warning_message = "Controller context for game mode '%s' is null"
+				var warning_message := "Controller context for game mode '%s' is null"
 				push_warning(warning_message % active_game_mode)

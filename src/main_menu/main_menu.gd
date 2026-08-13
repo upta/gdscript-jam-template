@@ -20,11 +20,11 @@ func _ready() -> void:
 	settings_action.triggered.connect(_on_settings_pressed)
 
 	audio_service.play_music(Audio.music.menu)
-	
 
-func _on_start_pressed():
+
+func _on_start_pressed() -> void:
 	screen_service.change_to_scene(game_scene)
 
 
-func _on_settings_pressed():
+func _on_settings_pressed() -> void:
 	settings_manager.toggle()

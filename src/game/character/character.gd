@@ -6,7 +6,7 @@ extends Node2D
 
 @onready var area_2d: Area2D = %Area2D
 
-var health = Health.new()
+var health := Health.new()
 
 # maybe not the best way to check for which object is under the cursor, but it works for the example
 var raycast_2d := RayCast2D.new()
@@ -26,16 +26,16 @@ func _ready() -> void:
 
 
 func _check_area_collision() -> bool:
-	var cursor_pos = cursor_action.value_axis_2d
-	
+	var cursor_pos := cursor_action.value_axis_2d
+
 	raycast_2d.global_position = cursor_pos
 	raycast_2d.target_position = Vector2(1, 0)
 	raycast_2d.force_raycast_update()
-	
+
 	if raycast_2d.is_colliding():
-		var collider = raycast_2d.get_collider()
+		var collider := raycast_2d.get_collider()
 		return collider == area_2d
-	
+
 	return false
 
 
