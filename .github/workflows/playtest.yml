@@ -100,8 +100,14 @@ jobs:
           PREFIX="$REPO_SLUG/$BRANCH_SLUG"
           echo "prefix=$PREFIX" >> "$GITHUB_ENV"
           cd build/web
+          # What this build wrote, so playtest-cleanup.yml can prune the
+          # prefix exactly: R2 has no recursive delete and wrangler has no
+          # object-list command. Written before the loop so it lists — and
+          # therefore uploads, and later deletes — itself.
+          ls -1 > _manifest.txt
           for f in *; do
             case "$f" in
+              *.txt)  CT="text/plain; charset=utf-8" ;;
               *.html) CT="text/html; charset=utf-8" ;;
               *.js)   CT="text/javascript" ;;
               *.wasm) CT="application/wasm" ;;

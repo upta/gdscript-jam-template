@@ -93,6 +93,12 @@ template" — same as `ITCHIO_API_KEY`):
 The r2.dev URL is rate-limited by Cloudflare — fine for playtests; attach a
 custom domain to the bucket if it ever matters.
 
+**Cleanup is branch deletion.** Deleting a branch on origin fires
+`playtest-cleanup.yml`, which prunes that branch's objects from the bucket —
+so `/merge`, which deletes the branch, cleans up on its own. Nothing else
+prunes them, and each build is ~40 MiB. For a prefix orphaned before this
+existed, run Actions → Playtest cleanup → Run workflow with the branch name.
+
 ## Without Claude
 
 Everything verifies from a plain shell:
