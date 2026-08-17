@@ -22,7 +22,7 @@ this file has a bug: fix it or delete it.
 | `src/addons/guide/` | G.U.I.D.E, vendored — never edited here. |
 | `src/addons/provider/` | Provider DI — owned upstream (upta/godot-provider), treat as vendored. |
 | `src/addons/agentic_godot_validation/` | Validation kit runtime — a symlink into the submodule. |
-| `src/tools/` | Repo-owned checks: `check_scripts.ps1` (compile gate), `lint.ps1`. |
+| `src/tools/` | Repo-owned checks: `check_scripts.ps1` (compile gate, engine half in `compile_check.gd`), `lint.ps1`. |
 | `.claude/` | The workflow machinery: skills, commands, reviewer agents, and the two blocking Stop hooks (validation freshness, doc budgets). CLAUDE.md is the contract. |
 | repo root | `validate.ps1` (THE gate), `test-run.ps1` (dev loop), `setup.ps1`/`setup.sh` + `symlink-config.txt` (kit intake), `tools/` → kit runners (symlink). |
 

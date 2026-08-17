@@ -56,6 +56,8 @@ InputModeContext entry in `src/app/root/root.tscn`'s input context resource.
 
 ## Scene errors surface only at runtime
 
-`check_scripts.ps1` proves scripts compile; it does not prove a scene loads.
-After a structural `.tscn` change, boot it: the run-game skill headless check,
-or the scenario suite if a harness covers it.
+`check_scripts.ps1` loads every `.gd` and `.tscn`, catching a script that will
+not compile or a scene that will not load. It does not *run* the scene:
+`%UniqueName` lookups, `_ready`, and export wiring surface only on boot. After
+a structural `.tscn` change, boot it: the run-game skill headless check, or the
+scenario suite if a harness covers it.

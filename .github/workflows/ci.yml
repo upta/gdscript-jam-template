@@ -37,15 +37,33 @@ jobs:
       - name: Import assets
         run: godot --headless --import --path src > /tmp/import.log 2>&1 || (cat /tmp/import.log && exit 1)
 
-      - name: Compile all scripts (1-frame editor pass)
-        # The editor exits 0 even when scripts fail to compile, so the grep is
-        # the gate, not the exit code. SCRIPT ERROR only: the known
-        # editor-start UID noise (CLAUDE.md § Known issues) is not a script
-        # error and must not fail the build.
+      - name: Load every script and scene (headless runtime pass)
+        # Deliberately not an editor pass: `--editor --quit-after N` never
+        # compiles script bodies, so a duplicate dictionary key — and a file of
+        # pure garbage — came back clean at every frame count tried.
+        # ResourceLoader.load() is the only thing that compiles, so
+        # compile_check.gd walks the project. Mirrors src/tools/check_scripts.ps1
+        # exactly: three gates, because silence used to read as success. Runtime
+        # logs are held strict — the known UID noise (CLAUDE.md § Known issues)
+        # is editor-mode only, which is why the import step above is gated on
+        # its exit code alone and its log is no longer grepped.
+        #
+        # Each gate records into $fail rather than exiting: `!` and `||` are
+        # exempt from `set -e`, so only the LAST command's status would reach
+        # GitHub otherwise, silently discarding every earlier verdict.
         run: |
-          godot --headless --editor --quit-after 1 --path src > /tmp/compile.log 2>&1 || (cat /tmp/compile.log && exit 1)
+          set +e
+          godot --headless --path src --script res://tools/compile_check.gd > /tmp/compile.log 2>&1
+          status=$?
+          set -e
           cat /tmp/compile.log
-          ! grep -h "SCRIPT ERROR" /tmp/import.log /tmp/compile.log
+
+          fail=0
+          grep -q '^COMPILE CHECK COMPLETE: [1-9]' /tmp/compile.log ||
+            { echo "No completion marker, or the walk reached no scripts."; fail=1; }
+          if grep -hE '^(USER |SCRIPT )?ERROR:|^COMPILE FAIL:' /tmp/compile.log; then fail=1; fi
+          [ "$status" -eq 0 ] || { echo "Compile pass exited $status."; fail=1; }
+          exit $fail
 
   lint:
     name: Format + lint

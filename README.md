@@ -106,7 +106,7 @@ Everything verifies from a plain shell:
 | Command | What it proves |
 | --- | --- |
 | `./validate.ps1` | The scenario suite, with screenshots as evidence |
-| `src/tools/check_scripts.ps1` | Every script compiles |
+| `src/tools/check_scripts.ps1` | Every script compiles and every scene loads |
 | `src/tools/lint.ps1` | gdformat + gdlint clean (`-Fix` applies formatting) |
 | `src/tools/export_web.ps1` → `serve_web.ps1` | The web build exists and serves at localhost:8060 |
 | `./test-run.ps1` | The game runs, on fresh assets |

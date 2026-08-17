@@ -44,7 +44,7 @@ Stated once, here. Every command references it; none restate it.
 3. **Suite green** — `./validate.ps1`, no regressions.
 4. **Game boots clean** — run-game skill: the positive marker appears and the
    runtime log has zero ERROR lines.
-5. **Scripts compile and read clean** — `src/tools/check_scripts.ps1`; run
+5. **Scripts compile and scenes load** — `src/tools/check_scripts.ps1`; run
    `src/tools/lint.ps1` when gdtoolkit is installed.
 6. **`.uid` sidecars committed** — run the import before committing; no
    unstaged `.uid` files left behind.
