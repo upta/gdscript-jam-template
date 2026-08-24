@@ -55,12 +55,17 @@ func _ready() -> void:
 	viewport.add_child(_pinned(art, 0.0))
 	viewport.add_child(_rule(size.x, art.get_height()))
 
+	# The rule lifts off the strip by --strip_pad, and the ground rect already
+	# under everything fills the gap. A crop tight to its own contents has no
+	# margin of its own, so a rule laid straight on it reads as a lid.
 	var floor_y := float(size.y)
 	if strip != null:
+		var pad := int(_arg("strip_pad", "0"))
+
 		floor_y -= strip.get_height()
 		viewport.add_child(_pinned(strip, floor_y))
-		viewport.add_child(_rule(size.x, roundi(floor_y) - RULE_HEIGHT))
-		floor_y -= RULE_HEIGHT
+		viewport.add_child(_rule(size.x, roundi(floor_y) - pad - RULE_HEIGHT))
+		floor_y -= pad + RULE_HEIGHT
 
 	viewport.add_child(_type_block(size.x, art.get_height() + RULE_HEIGHT, floor_y))
 

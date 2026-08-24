@@ -98,15 +98,15 @@ two shots of the same board a second apart read as one duplicated screenshot.
 
 A game is 16:9 and the cover is 1.26:1, so no single crop fills it without
 throwing away two thirds of the screen. `cover.gd` stacks instead: an art plate
-across the top, an optional second strip across the bottom, and the title and
-tagline in the ground between them.
+across the top, an optional second strip across the bottom, and the title in the
+ground between them.
 
 ```powershell
 Start-Process godot -Wait -ArgumentList "--path","src",
   "res://tools/presskit/cover.tscn","--quit-after","900","--",
   "--src","<dir>\<still>.png","--art","<x,y,w,h>",
-  "--strip_src","<dir>\<other>.png","--strip","<x,y,w,h>",
-  "--title","<NAME>","--tagline","<one line>","--title_size","108",
+  "--strip_src","<dir>\<other>.png","--strip","<x,y,w,h>","--strip_pad","30",
+  "--title","<NAME>","--title_size","108",
   "--ground","<#hex>","--accent","<#hex>","--ink","<#hex>","--ink_soft","<#hex>",
   "--out","press/cover.png"
 ```
@@ -116,10 +116,19 @@ what lets the same file sit in the template and in every project spawned from
 it. `--title_font` / `--body_font` are optional and default to the project
 theme's face; give them when the game ships its own.
 
-Pick the art crop so every player character is inside it — a cover missing one
-of four racers reads as an accident. Compose the title fresh rather than
-cropping the menu's: a shader-animated title is a different picture every frame,
-and the cover has to be legible as a thumbnail.
+- **Title only. No tagline, subheading, or second line unless the person asking
+  for the cover asks for one** — `--tagline` exists for that request and for
+  nothing else. A cover is read at thumbnail size, where a second line is
+  noise, and the page already has a description field for the sentence.
+- **Pick the art crop so every player character is inside it.** A cover missing
+  one of four racers reads as an accident rather than a crop.
+- **Compose the title fresh rather than cropping the menu's.** A
+  shader-animated title is a different picture every frame, and the cover has to
+  hold up as a thumbnail.
+- **`--strip_pad` lifts the lower rule off the strip.** A crop is tight to its
+  own contents, so a rule laid straight on it reads as a lid on the dice. Set
+  `--ground` to the colour the game draws *behind* that strip and the margin
+  flows into it instead of stepping into it.
 
 ## 3. Theme colours
 
