@@ -35,7 +35,7 @@ Play it, pattern-match it, replace it.
 
 ## The loop
 
-`/spec → /plan → /build …repeat… → /ship → /merge`. CLAUDE.md is the
+`/spec → /outline → /build …repeat… → /ship → /merge`. CLAUDE.md is the
 contract, ARCHITECTURE.md the map, DECISIONS.md the contested calls.
 
 - The verification gate: `./validate.ps1` (the scenario suite;

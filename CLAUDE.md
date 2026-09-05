@@ -69,7 +69,7 @@ Work items are disposable. Documentation is not.
 | Command | Purpose |
 | --- | --- |
 | `/spec` | Interview-first design intent, folded into SPEC.md in place |
-| `/plan` | Write the next phase ticket; read-only for code |
+| `/outline` | Write the next phase ticket (architect gates new shapes); read-only for code |
 | `/build` | Land the next unchecked task; the default working command |
 | `/test` | Unplanned verification: reproduce a bug, backfill coverage |
 | `/review` | Cheap single-pass five-axis review, mid-phase |

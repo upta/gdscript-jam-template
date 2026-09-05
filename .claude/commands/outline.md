@@ -1,4 +1,4 @@
-# /plan
+# /outline
 
 Write the next phase ticket. Read-only for the codebase — no code changes.
 
@@ -26,4 +26,7 @@ Write the next phase ticket. Read-only for the codebase — no code changes.
 
 - Reset `tasks/todo.md` to the new checklist; the final item is the human
   checkpoint.
+- For each task, name the seam it uses (ARCHITECTURE.md § Seams). If none
+  fits, run the architect skill and get that shape approved before the
+  ticket is done.
 - Stop for approval before /build.

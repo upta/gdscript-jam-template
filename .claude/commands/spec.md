@@ -9,5 +9,5 @@ Design-intent capture into SPEC.md. Interview, then write.
   open questions.
 - Fold answers into SPEC.md's existing sections IN PLACE. No dated layers, no
   changelog, no "Redesign (date)" stacks — rewrite the section.
-- Mechanics belong in /plan tickets, not here.
-- End by stopping for approval. Do not start /plan in the same turn.
+- Mechanics belong in /outline tickets, not here.
+- End by stopping for approval. Do not start /outline in the same turn.
