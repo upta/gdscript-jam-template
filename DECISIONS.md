@@ -51,15 +51,13 @@ compile + lint only.
 build. Tagging is the deliberate act, and /merge says out loud what a push
 triggers.
 
-**D9 — Branch playtest builds upload to Cloudflare R2 under `<repo>/<branch>/`.**
-One shared `playtests` bucket per account; every push to a non-main branch
-publishes to its prefix, and itch.io stays prod-only.
-*Why:* playtesting needs throwaway URLs testers just click, with no server to
-babysit mid-jam. Cloudflare Pages was the first pick (D8) but caps files at
-25 MiB and a stock Godot 4 web wasm is ~38 MiB; R2 objects go to 5 GiB, and
-the repo prefix keeps generated repos collision-proof.
+**D8 — Branch playtest builds cover every branch, main included, uploading
+to Cloudflare R2 under `<repo>/<branch>/`.**
+`playtest.yml` triggers on every branch push (not tag pushes). R2 rather
+than Cloudflare Pages: Pages caps files at 25 MiB and a stock Godot 4 web
+wasm is ~38 MiB.
+*Why:* a maintainer wants a throwaway preview of main same as any other
+branch. itch.io release (D7) is a separate concern, untouched by which
+branches get a playtest prefix.
 
 ## Closed
-
-**D8 — Branch playtest builds deploy to Cloudflare Pages.** Superseded by
-D9 — Pages' 25 MiB per-file cap cannot hold a stock Godot 4 wasm.

@@ -1,6 +1,6 @@
 name: Playtest cleanup
 
-# The other half of playtest.yml (D9): deleting a branch prunes its playtest
+# The other half of playtest.yml (D8): deleting a branch prunes its playtest
 # build from R2. Without this, every merged branch leaves ~40 MiB of orphaned
 # objects in the bucket forever — nothing else ever deletes them.
 #

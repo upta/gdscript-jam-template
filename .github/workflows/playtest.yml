@@ -1,15 +1,17 @@
 name: Playtest
 
-# Branch playtest deploys (D9): every push to a non-main branch exports the
-# Web build and uploads it to a Cloudflare R2 bucket under <repo>/<branch>/,
-# giving each branch a stable playtest URL:
+# Branch playtest deploys (D8): every branch push, main included, exports
+# the Web build and uploads it to a Cloudflare R2 bucket under
+# <repo>/<branch>/, giving each branch a stable playtest URL:
 #
 #   https://<bucket-public-url>/<repo>/<branch>/index.html
 #
-# R2 rather than Cloudflare Pages because Pages caps files at 25 MiB and a
-# stock Godot 4 web wasm is ~38 MiB (D8, superseded). main is deliberately
-# excluded — releases go through deploy.yml on tags (D7), so itch.io stays
-# prod-only.
+# itch.io release stays tag-driven (D7, deploy.yml) — this workflow never
+# touches it.
+#
+# branches: ["**"] rather than a bare `push:` — a tag push would otherwise
+# also match, uploading to an R2 prefix playtest-cleanup.yml can never prune
+# (its delete trigger excludes tags), leaking forever.
 #
 # Setup — full walkthrough in README § Branch playtests. Once per Cloudflare
 # account: the shared bucket + its public dev URL + an API token with
@@ -19,7 +21,7 @@ name: Playtest
 # clickable links in the run summary.
 on:
   push:
-    branches-ignore: ["main"]
+    branches: ["**"]
   workflow_dispatch:
 
 env:

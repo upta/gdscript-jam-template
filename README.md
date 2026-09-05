@@ -18,7 +18,7 @@ Play it, pattern-match it, replace it.
 3. **Rename things:** `config/name` in `src/project.godot`;
    `ITCHIO_USERNAME` / `ITCHIO_GAME` in `.github/workflows/deploy.yml`;
    `AppName` in `validation.config.psd1`. (The playtest workflow needs no
-   rename — its Pages project name derives from the repo name.)
+   rename — its R2 prefix derives from the repo name.)
 4. **itch.io:** create the project (Kind: HTML, viewport 1280×720, no
    payments). Create an API key (itch.io → Settings → API keys) and save it
    as the `ITCHIO_API_KEY` repository secret (Settings → Secrets and
@@ -47,12 +47,13 @@ contract, ARCHITECTURE.md the map, DECISIONS.md the contested calls.
 Pushing `main` builds nothing (D7). A `v*` tag — or a manual workflow run —
 exports the Web preset, proves the build actually produced files, and pushes
 it to itch.io with the tag as the version. CI (script compile + format/lint)
-runs on every PR and push to main.
+runs on every PR and push to main; branch playtests (below) cover every
+push, main included (D8).
 
 ## Branch playtests
 
-Every push to a non-main branch uploads the web build to Cloudflare R2 at
-`https://<bucket-public-url>/<repo>/<branch>/index.html` (D9) — throwaway
+Every push — main included — uploads the web build to Cloudflare R2 at
+`https://<bucket-public-url>/<repo>/<branch>/index.html` (D8) — throwaway
 URLs testers just click, while itch.io stays prod. (R2, not Cloudflare
 Pages: Pages caps files at 25 MiB and a stock Godot 4 web wasm is ~38 MiB.)
 
