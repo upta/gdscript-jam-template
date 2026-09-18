@@ -42,11 +42,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  export:
-    name: Web export
+  # One job on purpose: export and publish used to be two, handing the build
+  # over as an Actions artifact, and that artifact is what filled the
+  # account's 0.5 GB Actions storage. Past the allowance GitHub can refuse new
+  # artifacts outright, which would have failed every branch's playtest build
+  # until the month reset. Nothing here touches Actions storage now. The price:
+  # a failed R2 upload re-runs the export too.
+  playtest:
+    name: Web export + publish to Cloudflare R2
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.7.1
+    permissions:
+      contents: read
     steps:
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
@@ -71,23 +79,11 @@ jobs:
           test -s build/web/index.pck
           test -s build/web/index.wasm
 
-      - name: Upload build
-        uses: actions/upload-artifact@v4
+      # wrangler needs Node, and the Godot image makes no promise of one.
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          name: web-build
-          path: build/web
-          retention-days: 3
-
-  publish:
-    name: Publish to Cloudflare R2
-    needs: export
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download build
-        uses: actions/download-artifact@v4
-        with:
-          name: web-build
-          path: build/web
+          node-version: "22"
 
       - name: Upload to R2
         env:
