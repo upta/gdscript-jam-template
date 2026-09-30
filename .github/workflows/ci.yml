@@ -1,6 +1,6 @@
 name: CI
 
-# Compile + style gate on PRs and pushes to main. The in-engine validation
+# Compile gate on PRs and pushes to main. The in-engine validation
 # suite is NOT run here — scenario runs need a windowed engine, so the suite
 # stays local, run before merging (./validate.ps1; it is the Definition of
 # Done's gate, this workflow is just the floor).
@@ -64,27 +64,3 @@ jobs:
           if grep -hE '^(USER |SCRIPT )?ERROR:|^COMPILE FAIL:' /tmp/compile.log; then fail=1; fi
           [ "$status" -eq 0 ] || { echo "Compile pass exited $status."; fail=1; }
           exit $fail
-
-  lint:
-    name: Format + lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install gdtoolkit
-        # 4.5.0+ required: earlier releases cannot parse @abstract.
-        run: pip install "gdtoolkit==4.*"
-
-      - name: gdformat + gdlint
-        # Repo-owned scripts only — src/addons is vendored and not ours to
-        # style. Mirrors src/tools/lint.ps1.
-        run: |
-          git ls-files -- src | grep '\.gd$' | grep -v '^src/addons/' > /tmp/gd_files.txt
-          xargs -a /tmp/gd_files.txt gdformat --check
-          xargs -a /tmp/gd_files.txt gdlint

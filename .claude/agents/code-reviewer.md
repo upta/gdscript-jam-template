@@ -24,4 +24,4 @@ The repo's opinions, so you don't file them as findings:
 Output: findings graded Critical / Important / Suggestion, each with
 `file:line` and a one-line why. If you are unsure whether something is a
 defect, say so and name what would settle it rather than asserting. No style
-nitpicks the linter would catch; no generic-Godot dogma.
+nitpicks; no generic-Godot dogma.
