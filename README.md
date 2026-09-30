@@ -46,7 +46,7 @@ contract, ARCHITECTURE.md the map, DECISIONS.md the contested calls.
 
 Pushing `main` builds nothing (D7). A `v*` tag — or a manual workflow run —
 exports the Web preset, proves the build actually produced files, and pushes
-it to itch.io with the tag as the version. CI (script compile + format/lint)
+it to itch.io with the tag as the version. CI (the script compile gate)
 runs on every PR and push to main; branch playtests (below) cover every
 push, main included (D8).
 
@@ -108,7 +108,6 @@ Everything verifies from a plain shell:
 | --- | --- |
 | `./validate.ps1` | The scenario suite, with screenshots as evidence |
 | `src/tools/check_scripts.ps1` | Every script compiles and every scene loads |
-| `src/tools/lint.ps1` | gdformat + gdlint clean (`-Fix` applies formatting) |
 | `src/tools/export_web.ps1` → `serve_web.ps1` | The web build exists and serves at localhost:8060 |
 | `./test-run.ps1` | The game runs, on fresh assets |
 
@@ -128,5 +127,3 @@ git commit -m "chore(kit): bump agentic-godot-validation"
   including a standard editor if yours is the mono build, which cannot
   export web in Godot 4.
 - **PowerShell 7** (`pwsh`) for the validation suite runner.
-- **Python + gdtoolkit** (`pip install "gdtoolkit==4.*"`, 4.5.0+) for
-  format/lint — optional locally, enforced in CI.
